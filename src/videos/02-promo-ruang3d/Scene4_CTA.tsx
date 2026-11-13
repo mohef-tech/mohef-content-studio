@@ -1,32 +1,30 @@
 import React from 'react';
 import {
     AbsoluteFill,
-    Audio,
     Easing,
     interpolate,
     interpolateColors,
-    Sequence,
     spring,
-    staticFile,
     useCurrentFrame,
     useVideoConfig,
 } from 'remotion';
 import { ArrowRight, Boxes, Check, HardHat, MessageCircle } from 'lucide-react';
+import { SfxCue } from '../../lib/motion-craft';
 import { StudioBackground } from './StudioBackground';
 import { IsoStage, StudioLights } from './objects/Stage';
 import { Room } from './objects/Room';
 import { Bookshelf, Desk, FloorLamp, Lounge, Plant } from './objects/Furniture';
 import { LightCone } from './objects/Effects';
 import { CinematicFX, HandCursor, KineticHeadline, StarField } from './ui/Overlay';
-import { COLORS, FONT, MONO, ROOM_STATE } from './lib/constants';
+import { COLORS, FONT, MONO, ROOM_STATE, SCENE_DURATIONS } from './lib/constants';
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
 
 const BRAND = 'MOHEF TECH';
-const CARDS_AT = [68, 80];
-const CHIPS_AT = 104;
-const CTA_AT = 128;
-const TAP = 205;
+const CARDS_AT = [78, 94];
+const CHIPS_AT = 122;
+const CTA_AT = 152;
+const TAP = 240;
 const CTA_BOX = { top: 1560, left: 70, width: 940, height: 136 };
 
 const SERVICES = [
@@ -68,13 +66,13 @@ export const Scene4_CTA: React.FC = () => {
     const { fps } = useVideoConfig();
 
     // ===== Malam → siang, kamera mundur menampilkan maket utuh =====
-    const back = interpolate(frame, [0, 55], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+    const back = interpolate(frame, [0, 68], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
     const room = {
         scale: interpolate(back, [0, 1], [ROOM_STATE.s3End.scale, 0.92]),
         x: interpolate(back, [0, 1], [ROOM_STATE.s3End.x, 0]),
         y: interpolate(back, [0, 1], [ROOM_STATE.s3End.y, 1.08]),
         // turntable pelan sampai akhir
-        rotY: interpolate(frame, [0, 285], [ROOM_STATE.s3End.rotY, 0.55], { ...clamp, easing: Easing.inOut(Easing.sin) }),
+        rotY: interpolate(frame, [0, SCENE_DURATIONS.cta], [ROOM_STATE.s3End.rotY, 0.55], { ...clamp, easing: Easing.inOut(Easing.sin) }),
     };
     const lamp = interpolate(back, [0, 1], [1, 0.15]);
     const ring = 0.55 + 0.45 * Math.sin(frame * 0.12);
@@ -86,24 +84,24 @@ export const Scene4_CTA: React.FC = () => {
     const press = interpolate(frame, [TAP - 3, TAP, TAP + 7], [1, 0.95, 1], clamp);
     const tapped = frame >= TAP;
 
-    const handIn = interpolate(frame, [TAP - 26, TAP - 4], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
-    const handOut = interpolate(frame, [TAP + 20, TAP + 40], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
+    const handIn = interpolate(frame, [TAP - 30, TAP - 4], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
+    const handOut = interpolate(frame, [TAP + 22, TAP + 46], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
     const target = { x: CTA_BOX.left + CTA_BOX.width - 130, y: CTA_BOX.top + CTA_BOX.height / 2 };
 
     return (
         <AbsoluteFill style={{ fontFamily: FONT }}>
             {/* ===== SFX ===== */}
-            <Sequence durationInFrames={30}>
-                <Audio src={staticFile('sfx/whoosh.mp3')} volume={0.6} />
-            </Sequence>
-            {[...CARDS_AT, CHIPS_AT, CHIPS_AT + 6, CHIPS_AT + 12, CTA_AT].map((f, i) => (
-                <Sequence key={i} from={f} durationInFrames={15}>
-                    <Audio src={staticFile('sfx/pop.mp3')} volume={0.5} />
-                </Sequence>
+            <SfxCue frame={2} sfx="transition-minimize" volume={0.45} />
+            <SfxCue frame={10} sfx="transition-whoosh-soft" volume={0.38} />
+            {CARDS_AT.map((f) => (
+                <SfxCue key={f} frame={f} sfx="pop-in" volume={0.45} />
             ))}
-            <Sequence from={TAP} durationInFrames={20}>
-                <Audio src={staticFile('sfx/click.mp3')} volume={1} />
-            </Sequence>
+            {[CHIPS_AT, CHIPS_AT + 8, CHIPS_AT + 16].map((f) => (
+                <SfxCue key={f} frame={f} sfx="pop-plop" volume={0.4} />
+            ))}
+            <SfxCue frame={CTA_AT} sfx="pop-in" volume={0.48} />
+            <SfxCue frame={TAP} sfx="click" volume={0.55} />
+            <SfxCue frame={TAP + 2} sfx="confirm-glass" volume={0.5} />
 
             <StudioBackground darken={(1 - back) * 0.85} hud={false} accent="#0ea5e9" accent2="#10b981" />
             <StarField opacity={(1 - back) * 0.9} />
@@ -242,7 +240,7 @@ export const Scene4_CTA: React.FC = () => {
                 {/* checklist manfaat */}
                 <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
                     {CHIPS.map((c, i) => {
-                        const p = spring({ frame: frame - (CHIPS_AT + i * 6), fps, config: { damping: 11, stiffness: 180 } });
+                        const p = spring({ frame: frame - (CHIPS_AT + i * 8), fps, config: { damping: 11, stiffness: 180 } });
                         return (
                             <div
                                 key={c}

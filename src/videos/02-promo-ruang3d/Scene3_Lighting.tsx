@@ -1,17 +1,15 @@
 import React from 'react';
 import {
     AbsoluteFill,
-    Audio,
     Easing,
     interpolate,
     interpolateColors,
-    Sequence,
     spring,
-    staticFile,
     useCurrentFrame,
     useVideoConfig,
 } from 'remotion';
 import { Lightbulb, Moon, Sun } from 'lucide-react';
+import { SfxCue } from '../../lib/motion-craft';
 import { StudioBackground } from './StudioBackground';
 import { IsoStage, StudioLights } from './objects/Stage';
 import { Room } from './objects/Room';
@@ -23,8 +21,8 @@ import { COLORS, FONT, MONO, ROOM_STATE } from './lib/constants';
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
 
-const DESK_LAMP_ON = 108;
-const FLOOR_LAMP_ON = 118;
+const DESK_LAMP_ON = 132;
+const FLOOR_LAMP_ON = 146;
 const FLICKER = [1, 0.15, 0.9, 0.3, 1];
 
 const lampLevel = (frame: number, onAt: number) =>
@@ -35,7 +33,7 @@ export const Scene3_Lighting: React.FC = () => {
     const { fps, width, height } = useVideoConfig();
 
     // ===== Waktu: 10:00 → 21:00 =====
-    const d = interpolate(frame, [30, 190], [0, 1], { ...clamp, easing: Easing.inOut(Easing.sin) });
+    const d = interpolate(frame, [38, 225], [0, 1], { ...clamp, easing: Easing.inOut(Easing.sin) });
     const hour = 10 + 11 * d;
     const hh = Math.floor(hour);
     const mm = Math.floor(((hour % 1) * 60) / 5) * 5;
@@ -43,7 +41,7 @@ export const Scene3_Lighting: React.FC = () => {
     const isNight = d > 0.55;
 
     // ===== Kamera mendekat pelan =====
-    const camT = interpolate(frame, [20, 225], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+    const camT = interpolate(frame, [24, 265], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
     const room = {
         rotY: interpolate(camT, [0, 1], [ROOM_STATE.s2End.rotY, ROOM_STATE.s3End.rotY]),
         scale: interpolate(camT, [0, 1], [1, ROOM_STATE.s3End.scale]),
@@ -66,16 +64,15 @@ export const Scene3_Lighting: React.FC = () => {
     const floorLampPt = proj([1.72, 1.72, -0.05]);
 
     const accentTone = isNight ? COLORS.amber : COLORS.cyan;
-    const cardIn = spring({ frame: frame - 14, fps, config: { damping: 15 } });
+    const cardIn = spring({ frame: frame - 18, fps, config: { damping: 15 } });
 
     return (
         <AbsoluteFill style={{ fontFamily: FONT }}>
-            <Sequence from={DESK_LAMP_ON} durationInFrames={20}>
-                <Audio src={staticFile('sfx/click.mp3')} volume={0.9} />
-            </Sequence>
-            <Sequence from={FLOOR_LAMP_ON} durationInFrames={20}>
-                <Audio src={staticFile('sfx/click.mp3')} volume={0.7} />
-            </Sequence>
+            <SfxCue frame={40} sfx="pop-in" volume={0.38} />
+            <SfxCue frame={DESK_LAMP_ON} sfx="toggle-on" volume={0.5} />
+            <SfxCue frame={FLOOR_LAMP_ON} sfx="click-soft" volume={0.45} />
+            <SfxCue frame={DESK_LAMP_ON + 20} sfx="pop-in" volume={0.38} />
+            <SfxCue frame={FLOOR_LAMP_ON + 24} sfx="pop-in" volume={0.38} />
 
             <StudioBackground
                 accent={interpolateColors(d, [0, 0.5, 1], ['#0ea5e9', '#f97316', '#6366f1'])}
@@ -148,7 +145,7 @@ export const Scene3_Lighting: React.FC = () => {
                 lift={70}
                 tone={COLORS.cyan}
                 icon={<Sun size={24} strokeWidth={2.8} />}
-                progress={spring({ frame: frame - 34, fps, config: { damping: 14 } }) * interpolate(frame, [92, 102], [1, 0], clamp)}
+                progress={spring({ frame: frame - 40, fps, config: { damping: 14 } }) * interpolate(frame, [112, 126], [1, 0], clamp)}
             >
                 Cahaya alami dari jendela
             </Callout>
@@ -158,7 +155,7 @@ export const Scene3_Lighting: React.FC = () => {
                 lift={110}
                 tone={COLORS.amber}
                 icon={<Lightbulb size={24} strokeWidth={2.8} />}
-                progress={spring({ frame: frame - (DESK_LAMP_ON + 18), fps, config: { damping: 14 } })}
+                progress={spring({ frame: frame - (DESK_LAMP_ON + 20), fps, config: { damping: 14 } })}
             >
                 Lampu kerja 3000K
             </Callout>
@@ -168,7 +165,7 @@ export const Scene3_Lighting: React.FC = () => {
                 lift={60}
                 tone={COLORS.amber}
                 icon={<Lightbulb size={24} strokeWidth={2.8} />}
-                progress={spring({ frame: frame - (FLOOR_LAMP_ON + 22), fps, config: { damping: 14 } })}
+                progress={spring({ frame: frame - (FLOOR_LAMP_ON + 24), fps, config: { damping: 14 } })}
             >
                 Sudut tamu hangat
             </Callout>

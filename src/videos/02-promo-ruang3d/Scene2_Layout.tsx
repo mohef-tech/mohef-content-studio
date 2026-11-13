@@ -1,16 +1,14 @@
 import React from 'react';
 import {
     AbsoluteFill,
-    Audio,
     Easing,
     interpolate,
-    Sequence,
     spring,
-    staticFile,
     useCurrentFrame,
     useVideoConfig,
 } from 'remotion';
 import { Check, LayoutGrid, Sun, X } from 'lucide-react';
+import { SfxCue } from '../../lib/motion-craft';
 import { StudioBackground } from './StudioBackground';
 import { IsoStage, StudioLights } from './objects/Stage';
 import { BlueprintContext } from './objects/Primitives';
@@ -19,14 +17,14 @@ import { Bookshelf, Desk, FloorLamp, Lounge, Plant } from './objects/Furniture';
 import { FloorZone, FlowArrows } from './objects/Effects';
 import { CinematicFX, Callout, HandCursor, KineticHeadline, Pill } from './ui/Overlay';
 import { projectToScreen, V3 } from './lib/iso';
-import { COLORS, FONT, MONO, ROOM_STATE } from './lib/constants';
+import { COLORS, FONT, MONO, ROOM_STATE, SCENE_DURATIONS } from './lib/constants';
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
 
-const TAP = 110; // jari mengetuk tombol "Layout B"
-const DESK_SWAP = [TAP + 2, TAP + 40] as const;
-const LOUNGE_SWAP = [TAP + 14, TAP + 54] as const;
-const RESULT = 168; // hasil layout B mulai terlihat
+const TAP = 150; // jari mengetuk tombol "Layout B"
+const DESK_SWAP = [TAP + 4, TAP + 52] as const;
+const LOUNGE_SWAP = [TAP + 18, TAP + 68] as const;
+const RESULT = 224; // hasil layout B mulai terlihat
 
 // Posisi tombol toggle di layar (dipakai juga oleh kursor tangan)
 const TOGGLE = { top: 1300, left: 70, width: 940, height: 92 };
@@ -39,19 +37,19 @@ export const Scene2_Layout: React.FC = () => {
     const { fps, width, height } = useVideoConfig();
 
     const room = {
-        rotY: interpolate(frame, [0, 270], [ROOM_STATE.s1End.rotY, ROOM_STATE.s2End.rotY]),
+        rotY: interpolate(frame, [0, SCENE_DURATIONS.layout], [ROOM_STATE.s1End.rotY, ROOM_STATE.s2End.rotY]),
         y: ROOM_STATE.s1End.y,
     };
 
     // Blueprint (akhir Scene 1) "mewujud" jadi material asli
-    const bp = interpolate(frame, [0, 26], [1, 0], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+    const bp = interpolate(frame, [0, 32], [1, 0], { ...clamp, easing: Easing.inOut(Easing.cubic) });
 
     const pop = (at: number) => spring({ frame: frame - at, fps, config: { damping: 12, stiffness: 160 } });
-    const shelfS = pop(16);
-    const deskS = pop(22);
-    const loungeS = pop(28);
-    const plantS = pop(34);
-    const lampS = pop(38);
+    const shelfS = pop(18);
+    const deskS = pop(26);
+    const loungeS = pop(34);
+    const plantS = pop(42);
+    const lampS = pop(48);
 
     // ===== Pertukaran layout dengan lintasan melengkung (furnitur "diangkat") =====
     const deskT = interpolate(frame, DESK_SWAP, [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
@@ -71,46 +69,43 @@ export const Scene2_Layout: React.FC = () => {
 
     const isB = frame >= TAP;
     const pulse = 0.65 + 0.35 * Math.sin(frame * 0.25);
-    const redZone = interpolate(frame, [46, 58, TAP, TAP + 8], [0, 1, 1, 0], clamp) * pulse;
-    const greenZone = interpolate(frame, [RESULT, RESULT + 14], [0, 1], clamp);
-    const flow = interpolate(frame, [RESULT - 6, RESULT + 10], [0, 1], clamp);
+    const redZone = interpolate(frame, [56, 72, TAP, TAP + 10], [0, 1, 1, 0], clamp) * pulse;
+    const greenZone = interpolate(frame, [RESULT, RESULT + 18], [0, 1], clamp);
+    const flow = interpolate(frame, [RESULT - 6, RESULT + 14], [0, 1], clamp);
 
     // ===== Skor ruang gerak =====
-    const score = Math.round(interpolate(frame, [RESULT - 10, RESULT + 26], [48, 83], { ...clamp, easing: Easing.out(Easing.cubic) }));
+    const score = Math.round(interpolate(frame, [RESULT - 10, RESULT + 34], [48, 83], { ...clamp, easing: Easing.out(Easing.cubic) }));
     const scoreColor = score > 70 ? COLORS.green : score > 60 ? COLORS.amber : COLORS.red;
-    const badge = spring({ frame: frame - (RESULT + 26), fps, config: { damping: 9, stiffness: 180 } });
+    const badge = spring({ frame: frame - (RESULT + 34), fps, config: { damping: 9, stiffness: 180 } });
 
     // ===== Kursor tangan =====
-    const handIn = interpolate(frame, [80, 104], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
-    const handOut = interpolate(frame, [TAP + 16, TAP + 36], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
+    const handIn = interpolate(frame, [114, 142], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
+    const handOut = interpolate(frame, [TAP + 20, TAP + 44], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
     const handX = lerp(1040, BTN_B_CENTER.x, handIn) + handOut * 260;
     const handY = lerp(1900, BTN_B_CENTER.y, handIn) + handOut * 400;
-    const knob = interpolate(frame, [TAP, TAP + 12], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.6)) });
+    const knob = interpolate(frame, [TAP, TAP + 14], [0, 1], { ...clamp, easing: Easing.out(Easing.back(1.6)) });
 
     const proj = (p: V3) => projectToScreen(p, room, width, height);
     const pathPt = proj([1.1, 0.15, -1.2]);
     const deskA = proj([0.95, 1.3, 1.35]);
     const deskB = proj([-1.3, 1.35, 0.3]);
 
-    const cardIn = spring({ frame: frame - 40, fps, config: { damping: 15 } });
+    const cardIn = spring({ frame: frame - 50, fps, config: { damping: 15 } });
 
     return (
         <AbsoluteFill style={{ fontFamily: FONT }}>
             {/* ===== SFX ===== */}
-            {[16, 22, 28, 34].map((f) => (
-                <Sequence key={f} from={f} durationInFrames={15}>
-                    <Audio src={staticFile('sfx/pop.mp3')} volume={0.45} />
-                </Sequence>
+            {[18, 26, 34, 42, 48].map((f) => (
+                <SfxCue key={f} frame={f} sfx="pop-plop" volume={0.42} />
             ))}
-            <Sequence from={TAP} durationInFrames={20}>
-                <Audio src={staticFile('sfx/click.mp3')} volume={1} />
-            </Sequence>
-            <Sequence from={TAP + 4} durationInFrames={40}>
-                <Audio src={staticFile('sfx/whoosh.mp3')} volume={0.6} />
-            </Sequence>
-            <Sequence from={RESULT + 26} durationInFrames={20}>
-                <Audio src={staticFile('sfx/pop.mp3')} volume={0.8} />
-            </Sequence>
+            <SfxCue frame={62} sfx="pop-in" volume={0.36} />
+            <SfxCue frame={78} sfx="pop-in" volume={0.36} />
+            <SfxCue frame={TAP} sfx="toggle-on" volume={0.5} />
+            <SfxCue frame={DESK_SWAP[0]} sfx="transition-swipe" volume={0.45} />
+            <SfxCue frame={LOUNGE_SWAP[0]} sfx="transition-whoosh-soft" volume={0.42} />
+            <SfxCue frame={RESULT} sfx="confirm-chime" volume={0.48} />
+            <SfxCue frame={RESULT + 20} sfx="pop-in" volume={0.38} />
+            <SfxCue frame={RESULT + 34} sfx="pop-in" volume={0.45} />
 
             <StudioBackground
                 accent={isB ? '#10b981' : '#0ea5e9'}
@@ -165,7 +160,7 @@ export const Scene2_Layout: React.FC = () => {
                 lift={150}
                 tone={COLORS.red}
                 icon={<X size={24} strokeWidth={3.5} />}
-                progress={spring({ frame: frame - 50, fps, config: { damping: 14 } }) * interpolate(frame, [TAP - 4, TAP + 4], [1, 0], clamp)}
+                progress={spring({ frame: frame - 62, fps, config: { damping: 14 } }) * interpolate(frame, [TAP - 4, TAP + 4], [1, 0], clamp)}
             >
                 Jalur pintu cuma 45 cm
             </Callout>
@@ -175,7 +170,7 @@ export const Scene2_Layout: React.FC = () => {
                 lift={40}
                 tone={COLORS.amber}
                 icon={<X size={24} strokeWidth={3.5} />}
-                progress={spring({ frame: frame - 62, fps, config: { damping: 14 } }) * interpolate(frame, [TAP - 4, TAP + 4], [1, 0], clamp)}
+                progress={spring({ frame: frame - 78, fps, config: { damping: 14 } }) * interpolate(frame, [TAP - 4, TAP + 4], [1, 0], clamp)}
             >
                 Meja jauh dari cahaya
             </Callout>
@@ -187,7 +182,7 @@ export const Scene2_Layout: React.FC = () => {
                 lift={150}
                 tone={COLORS.green}
                 icon={<Check size={24} strokeWidth={3.5} />}
-                progress={spring({ frame: frame - (RESULT + 4), fps, config: { damping: 14 } })}
+                progress={spring({ frame: frame - (RESULT + 6), fps, config: { damping: 14 } })}
             >
                 Jalur lega 110 cm
             </Callout>
@@ -197,7 +192,7 @@ export const Scene2_Layout: React.FC = () => {
                 lift={60}
                 tone={COLORS.green}
                 icon={<Sun size={24} strokeWidth={2.8} />}
-                progress={spring({ frame: frame - (RESULT + 16), fps, config: { damping: 14 } })}
+                progress={spring({ frame: frame - (RESULT + 20), fps, config: { damping: 14 } })}
             >
                 Meja dekat jendela
             </Callout>

@@ -12,6 +12,7 @@ import { Scene1_Hook } from './Scene1_Hook';
 import { Scene2_Layout } from './Scene2_Layout';
 import { Scene3_Lighting } from './Scene3_Lighting';
 import { Scene4_CTA } from './Scene4_CTA';
+import { SfxCue } from '../../lib/motion-craft';
 import { SCENE_DURATIONS } from './lib/constants';
 
 const ORDER = [
@@ -64,6 +65,9 @@ const CutGlow: React.FC = () => {
 export const PromoRuang3DVideo: React.FC = () => {
     return (
         <AbsoluteFill style={{ backgroundColor: '#03060e' }}>
+            {/* Musik Latar (BGM) */}
+            <Audio src={staticFile('audio/songs/B25-apple-keynote-pluck.wav')} volume={0.14} loop />
+
             <Series>
                 <Series.Sequence durationInFrames={SCENE_DURATIONS.hook}>
                     <Scene1_Hook />
@@ -90,10 +94,11 @@ export const PromoRuang3DVideo: React.FC = () => {
                     <CutGlow />
                 </Sequence>
             ))}
-            {STARTS.slice(1, 3).map((s) => (
-                <Sequence key={`w${s}`} from={s - 6} durationInFrames={30}>
-                    <Audio src={staticFile('sfx/whoosh.mp3')} volume={0.35} />
-                </Sequence>
+            {STARTS.slice(1).map((s) => (
+                <React.Fragment key={`sfx-${s}`}>
+                    <SfxCue frame={s - 6} sfx="transition-whoosh-soft" volume={0.42} />
+                    <SfxCue frame={s - 2} sfx="transition-swoosh" volume={0.35} />
+                </React.Fragment>
             ))}
 
             <StoryProgress />

@@ -1,16 +1,14 @@
 import React from 'react';
 import {
     AbsoluteFill,
-    Audio,
     Easing,
     interpolate,
-    Sequence,
     spring,
-    staticFile,
     useCurrentFrame,
     useVideoConfig,
 } from 'remotion';
 import { AlertTriangle, Box as BoxIcon, X } from 'lucide-react';
+import { SfxCue } from '../../lib/motion-craft';
 import { StudioBackground } from './StudioBackground';
 import { IsoStage, StudioLights } from './objects/Stage';
 import { BlueprintContext } from './objects/Primitives';
@@ -19,26 +17,26 @@ import { Bookshelf, Desk, Lounge, Plant } from './objects/Furniture';
 import { DimensionLine } from './objects/Effects';
 import { CinematicFX, Callout, KineticHeadline, Pill } from './ui/Overlay';
 import { projectToScreen, V3 } from './lib/iso';
-import { COLORS, FONT, MONO, ROOM_STATE } from './lib/constants';
+import { COLORS, FONT, MONO, ROOM_STATE, SCENE_DURATIONS } from './lib/constants';
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
 
 // Furnitur "asal taruh" yang jatuh dari atas
 const DROPS = [
-    { id: 'lounge', at: 30, pos: [0.95, -0.85] as [number, number], rot: 0.25 },
-    { id: 'desk', at: 46, pos: [-0.15, 0.85] as [number, number], rot: 0.45 },
-    { id: 'shelf', at: 62, pos: [-1.5, 0.35] as [number, number], rot: Math.PI / 2 },
-    { id: 'plant', at: 76, pos: [0.75, 0.6] as [number, number], rot: 0 },
+    { id: 'lounge', at: 42, pos: [0.95, -0.85] as [number, number], rot: 0.25 },
+    { id: 'desk', at: 64, pos: [-0.15, 0.85] as [number, number], rot: 0.45 },
+    { id: 'shelf', at: 86, pos: [-1.5, 0.35] as [number, number], rot: Math.PI / 2 },
+    { id: 'plant', at: 106, pos: [0.75, 0.6] as [number, number], rot: 0 },
 ] as const;
 
 const PROBLEMS: Array<{ text: string; at: number; anchor: V3; lift: number }> = [
-    { text: 'Pintu terhalang', at: 40, anchor: [0.95, 0.95, -0.9], lift: 150 },
-    { text: 'Jalur sempit', at: 56, anchor: [-0.15, 1.35, 0.85], lift: 70 },
-    { text: 'Cahaya tertutup', at: 72, anchor: [-1.5, 1.75, 0.35], lift: 120 },
+    { text: 'Pintu terhalang', at: 54, anchor: [0.95, 0.95, -0.9], lift: 150 },
+    { text: 'Jalur sempit', at: 76, anchor: [-0.15, 1.35, 0.85], lift: 70 },
+    { text: 'Cahaya tertutup', at: 98, anchor: [-1.5, 1.75, 0.35], lift: 120 },
 ];
 
-const STAMP_AT = 108;
-const REWIND_AT = 148;
+const STAMP_AT = 148;
+const REWIND_AT = 205;
 const SUBLINE = 'Lihat layout, ukuran & pencahayaan ruang kerjamu dalam 3D — sebelum keluar biaya renovasi.';
 
 export const Scene1_Hook: React.FC = () => {
@@ -48,9 +46,9 @@ export const Scene1_Hook: React.FC = () => {
     // ===== Kerangka ruang tumbuh bertahap =====
     const build = {
         floor: spring({ frame, fps, config: { damping: 14 } }),
-        back: spring({ frame: frame - 6, fps, config: { damping: 13 } }),
-        left: spring({ frame: frame - 11, fps, config: { damping: 13 } }),
-        details: spring({ frame: frame - 18, fps, config: { damping: 12 } }),
+        back: spring({ frame: frame - 10, fps, config: { damping: 13 } }),
+        left: spring({ frame: frame - 18, fps, config: { damping: 13 } }),
+        details: spring({ frame: frame - 28, fps, config: { damping: 12 } }),
     };
 
     // ===== Getar kamera tiap furnitur menghantam lantai =====
@@ -63,13 +61,13 @@ export const Scene1_Hook: React.FC = () => {
     const stampShake = stampT >= 0 && stampT < 16 ? Math.sin(stampT * 3) * Math.exp(-stampT * 0.3) * 0.08 : 0;
 
     const room = {
-        rotY: interpolate(frame, [0, 255], [-0.3, ROOM_STATE.s1End.rotY]),
+        rotY: interpolate(frame, [0, SCENE_DURATIONS.hook], [-0.3, ROOM_STATE.s1End.rotY]),
         x: shake * 0.6 + stampShake,
         y: ROOM_STATE.s1End.y + shake,
     };
 
     // ===== Mode blueprint setelah "rewind" =====
-    const bp = interpolate(frame, [REWIND_AT + 14, REWIND_AT + 46], [0, 1], {
+    const bp = interpolate(frame, [REWIND_AT + 16, REWIND_AT + 54], [0, 1], {
         ...clamp,
         easing: Easing.inOut(Easing.cubic),
     });
@@ -80,13 +78,13 @@ export const Scene1_Hook: React.FC = () => {
         interpolate(frame, [REWIND_AT - 2, REWIND_AT + 8], [1, 0], clamp);
     const stampIn = spring({ frame: stampT, fps, config: { damping: 11, stiffness: 220 } });
 
-    const dimP = interpolate(frame, [REWIND_AT + 40, REWIND_AT + 62], [0, 1], {
+    const dimP = interpolate(frame, [REWIND_AT + 48, REWIND_AT + 76], [0, 1], {
         ...clamp,
         easing: Easing.out(Easing.cubic),
     });
 
     const isRewind = frame >= REWIND_AT;
-    const typed = Math.round(interpolate(frame, [198, 238], [0, SUBLINE.length], clamp));
+    const typed = Math.round(interpolate(frame, [260, 310], [0, SUBLINE.length], clamp));
 
     const proj = (p: V3) => projectToScreen(p, room, width, height);
     const dimX = proj([0, 0.12, 2.5]);
@@ -95,23 +93,22 @@ export const Scene1_Hook: React.FC = () => {
     return (
         <AbsoluteFill style={{ fontFamily: FONT }}>
             {/* ===== SFX ===== */}
+            <SfxCue frame={2} sfx="pop-in" volume={0.4} />
+            <SfxCue frame={10} sfx="pop-in" volume={0.4} />
+            <SfxCue frame={18} sfx="pop-in" volume={0.4} />
+            <SfxCue frame={28} sfx="pop-plop" volume={0.42} />
             {DROPS.map((d) => (
-                <Sequence key={d.id} from={d.at + 5} durationInFrames={20}>
-                    <Audio src={staticFile('sfx/pop.mp3')} volume={0.7} />
-                </Sequence>
+                <SfxCue key={d.id} frame={d.at + 5} sfx="pop-plop" volume={0.48} />
             ))}
-            <Sequence from={STAMP_AT - 4} durationInFrames={30}>
-                <Audio src={staticFile('sfx/whoosh.mp3')} volume={0.8} />
-            </Sequence>
-            <Sequence from={STAMP_AT} durationInFrames={20}>
-                <Audio src={staticFile('sfx/click.mp3')} volume={1} />
-            </Sequence>
-            <Sequence from={REWIND_AT} durationInFrames={30}>
-                <Audio src={staticFile('sfx/whoosh.mp3')} volume={0.7} />
-            </Sequence>
-            <Sequence from={198} durationInFrames={40}>
-                <Audio src={staticFile('sfx/typing.mp3')} volume={0.35} />
-            </Sequence>
+            {PROBLEMS.map((p) => (
+                <SfxCue key={p.text} frame={p.at} sfx="pop-in" volume={0.38} />
+            ))}
+            <SfxCue frame={STAMP_AT} sfx="impact-soft" volume={0.55} />
+            <SfxCue frame={STAMP_AT + 2} sfx="click-soft" volume={0.45} />
+            <SfxCue frame={REWIND_AT} sfx="transition-whoosh-soft" volume={0.48} />
+            <SfxCue frame={REWIND_AT + 18} sfx="click-soft" volume={0.4} />
+            <SfxCue frame={REWIND_AT + 48} sfx="click-soft" volume={0.38} />
+            <SfxCue frame={260} sfx="typing-soft" volume={0.32} durationInFrames={50} />
 
             <StudioBackground
                 accent={isRewind ? '#0ea5e9' : '#f43f5e'}

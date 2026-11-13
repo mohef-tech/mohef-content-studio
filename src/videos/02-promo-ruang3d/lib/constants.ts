@@ -1,9 +1,9 @@
 // Durasi tiap scene (30 fps). Root.tsx & PromoRuang3DVideo membaca dari sini.
 export const SCENE_DURATIONS = {
-    hook: 255,
-    layout: 270,
-    lighting: 240,
-    cta: 285,
+    hook: 360,
+    layout: 360,
+    lighting: 300,
+    cta: 330,
 } as const;
 
 export const TOTAL_DURATION =
