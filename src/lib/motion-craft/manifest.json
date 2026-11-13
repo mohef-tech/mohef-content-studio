@@ -1,0 +1,344 @@
+[
+  {
+    "file": "Card3DLayouts.tsx",
+    "name": "Coverflow3D",
+    "effect": "Kartu tengah lurus, kartu samping miring dengan kedalaman perspektif",
+    "use": "Navigasi tahapan skripsi dari pengajuan judul sampai sidang",
+    "frames": 90,
+    "sfx": "transition-swipe.wav",
+    "sfxFrames": [15, 43]
+  },
+  {
+    "file": "Card3DLayouts.tsx",
+    "name": "FerrisWheelCards",
+    "effect": "Kartu berputar melingkar vertikal seperti kincir ria 3D",
+    "use": "Siklus riset berkala dari studi pustaka hingga evaluasi",
+    "frames": 90,
+    "sfx": "tick-soft.wav",
+    "sfxFrames": [14, 42]
+  },
+  {
+    "file": "Card3DLayouts.tsx",
+    "name": "CubeRoll3D",
+    "effect": "Kubus 3D berguling menampilkan sisi kartu berikutnya",
+    "use": "Enam langkah cepat menyelesaikan penulisan bab tiga skripsi",
+    "frames": 100,
+    "sfx": "transition-swoosh.wav",
+    "sfxFrames": [15, 47]
+  },
+  {
+    "file": "Card3DLayouts.tsx",
+    "name": "CylinderCards3D",
+    "effect": "Kartu tersusun melingkar di dinding silinder 3D berputar",
+    "use": "Daftar variabel penelitian dan instrumen uji statistik data",
+    "frames": 100,
+    "sfx": "transition-scroll.wav",
+    "sfxFrames": [10]
+  },
+  {
+    "file": "Card3DLayouts.tsx",
+    "name": "HelixCards3D",
+    "effect": "Kartu tersusun spiral heliks 3D bergerak naik perlahan",
+    "use": "Piramida hierarki landasan teori dan tinjauan pustaka jurnal",
+    "frames": 100,
+    "sfx": "transition-swipe.wav",
+    "sfxFrames": [10]
+  },
+  {
+    "file": "Card3DLayouts.tsx",
+    "name": "SphereCards3D",
+    "effect": "Kartu tersebar membentuk bola 3D membuka secara radial",
+    "use": "Eksplorasi topik riset dari berbagai sudut pandang keilmuan",
+    "frames": 100,
+    "sfx": "transition-whoosh-soft.wav",
+    "sfxFrames": [8]
+  },
+  {
+    "file": "Card3DLayouts.tsx",
+    "name": "ZDepthTunnel",
+    "effect": "Kartu meluncur maju dari lorong kedalaman sumbu Z",
+    "use": "Fokus mendalam ke inti permasalahan utama skripsi mahasiswa",
+    "frames": 90,
+    "sfx": "transition-whoosh-soft.wav",
+    "sfxFrames": [10, 38]
+  },
+  {
+    "file": "GridAnimations.tsx",
+    "name": "BentoGridReveal",
+    "effect": "Kotak beda ukuran muncul bertahap dalam gelombang pegas",
+    "use": "Struktur komprehensif outline proposal penelitian skripsi cepat selesai",
+    "frames": 90,
+    "sfx": "pop-in.wav",
+    "sfxFrames": [10, 28, 46]
+  },
+  {
+    "file": "GridAnimations.tsx",
+    "name": "ExplodeToGrid",
+    "effect": "Tumpukan kartu pecah menyebar lalu tersusun rapi grid",
+    "use": "Mengurai ide acak menjadi bab skripsi yang terstruktur",
+    "frames": 100,
+    "sfx": "transition-swoosh.wav",
+    "sfxFrames": [18, 42]
+  },
+  {
+    "file": "GridAnimations.tsx",
+    "name": "LayoutMorphGridToCarousel",
+    "effect": "Susunan grid bertransformasi mulus menjadi korsel kartu fokus",
+    "use": "Memilih metodologi terbaik dari beberapa opsi riset awal",
+    "frames": 100,
+    "sfx": "transition-maximize.wav",
+    "sfxFrames": [30, 60]
+  },
+  {
+    "file": "GridAnimations.tsx",
+    "name": "MasonryZoomDetail",
+    "effect": "Satu kartu dari kisi membesar dramatis menampilkan detail",
+    "use": "Menyorot temuan penting data hasil analisis bab empat",
+    "frames": 100,
+    "sfx": "click.wav",
+    "sfxFrames": [18, 50]
+  },
+  {
+    "file": "GridAnimations.tsx",
+    "name": "GridRecapZoomOut",
+    "effect": "Kartu utama mengecil mengungkap seluruh kartu kisi rapi",
+    "use": "Ringkasan kesimpulan dan saran akhir seluruh laporan skripsi",
+    "frames": 90,
+    "sfx": "transition-minimize.wav",
+    "sfxFrames": [24, 42]
+  },
+  {
+    "file": "CardInteractions.tsx",
+    "name": "CardStackSwipe",
+    "effect": "Kartu teratas bergeser keluar dan kartu bawahnya naik",
+    "use": "Menyingkirkan mitos skripsi dan menampilkan fakta solutif sebenarnya",
+    "frames": 90,
+    "sfx": "transition-swipe.wav",
+    "sfxFrames": [18, 48]
+  },
+  {
+    "file": "CardInteractions.tsx",
+    "name": "FanSpreadCards",
+    "effect": "Tumpukan kartu membuka melengkung menyebar seperti bentuk kipas",
+    "use": "Pilihan topik alternatif untuk konsultasi bersama dosen pembimbing",
+    "frames": 90,
+    "sfx": "k1.wav",
+    "sfxFrames": [14]
+  },
+  {
+    "file": "CardInteractions.tsx",
+    "name": "PolaroidDropTable",
+    "effect": "Foto polaroid jatuh memantul natural di atas meja",
+    "use": "Koleksi bukti dokumentasi riset dan wawancara lapangan penelitian",
+    "frames": 100,
+    "sfx": "k2.wav",
+    "sfxFrames": [16, 38, 60]
+  },
+  {
+    "file": "CardInteractions.tsx",
+    "name": "CardFlip3D",
+    "effect": "Kartu berputar 180 derajat terangkat ke arah kamera",
+    "use": "Mengubah sudut pandang revisi dosen menjadi arahan konstruktif",
+    "frames": 90,
+    "sfx": "transition-swipe.wav",
+    "sfxFrames": [28]
+  },
+  {
+    "file": "CardInteractions.tsx",
+    "name": "PageCurlCard",
+    "effect": "Sudut kartu tergulung diagonal memperlihatkan sisi belakang bawah",
+    "use": "Membongkar rahasia di balik pertanyaan jebakan dosen penguji",
+    "frames": 90,
+    "sfx": "k1.wav",
+    "sfxFrames": [20]
+  },
+  {
+    "file": "CardInteractions.tsx",
+    "name": "PageTurnBook",
+    "effect": "Halaman buku berputar membalik membuka lembaran bab baru",
+    "use": "Transisi antar bab skripsi dari latar belakang kesimpulan",
+    "frames": 90,
+    "sfx": "k1.wav",
+    "sfxFrames": [24]
+  },
+  {
+    "file": "CardInteractions.tsx",
+    "name": "AccordionFoldCard",
+    "effect": "Panel kartu terlipat membuka vertikal seperti akordeon mulus",
+    "use": "Jadwal rencana timeline pengerjaan skripsi target tiga bulan",
+    "frames": 90,
+    "sfx": "transition-maximize.wav",
+    "sfxFrames": [16]
+  },
+  {
+    "file": "KineticWords.tsx",
+    "name": "TypeText",
+    "effect": "Teks mengetik karakter demi karakter dengan kursor berkedip",
+    "use": "Menampilkan judul bab skripsi dengan simulasi ketikan langsung",
+    "frames": 90,
+    "sfx": "typing-loop.wav",
+    "sfxFrames": [10]
+  },
+  {
+    "file": "KineticWords.tsx",
+    "name": "FlyText",
+    "effect": "Huruf teks melayang masuk satu per satu secara dinamis",
+    "use": "Sorotan kata kunci penting pada latar belakang masalah skripsi",
+    "frames": 90,
+    "sfx": "",
+    "sfxFrames": []
+  },
+  {
+    "file": "KineticWords.tsx",
+    "name": "AnimatedProgressBar",
+    "effect": "Bilah kemajuan animasi dengan persentase angka dan status selesai",
+    "use": "Indikator progres pengerjaan revisi bab skripsi mahasiswa semester akhir",
+    "frames": 90,
+    "sfx": "progress-loop.wav",
+    "sfxFrames": [15, 65]
+  },
+  {
+    "file": "KineticWords.tsx",
+    "name": "BottomSubtitleBar",
+    "effect": "Bilah teks terjemahan bawah dengan penyorotan kata demi kata",
+    "use": "Panduan subtitle narasi presentasi sidang skripsi tanpa suara audio",
+    "frames": 90,
+    "sfx": "",
+    "sfxFrames": []
+  },
+  {
+    "file": "AnimatedCursor.tsx",
+    "name": "AnimatedCursor",
+    "effect": "Kursor mouse bergerak halus mengikuti titik koordinat waypoint interaksi",
+    "use": "Simulasi klik tombol submit revisi skripsi pada portal kampus",
+    "frames": 90,
+    "sfx": "click.wav",
+    "sfxFrames": [24]
+  },
+  {
+    "file": "LivedInUIShells.tsx",
+    "name": "AuthenticBrowserWindow",
+    "effect": "Bingkai peramban web modern lengkap dengan tab dan url",
+    "use": "Menampilkan portal repositori digital jurnal ilmiah kampus untuk riset",
+    "frames": 90,
+    "sfx": "",
+    "sfxFrames": []
+  },
+  {
+    "file": "LivedInUIShells.tsx",
+    "name": "AuthenticTerminalWindow",
+    "effect": "Jendela terminal perintah konsol dengan animasi ketikan dan progres",
+    "use": "Simulasi komputasi eksekusi skrip pengolahan data statistik penelitian skripsi",
+    "frames": 90,
+    "sfx": "typing-loop.wav",
+    "sfxFrames": [10]
+  },
+  {
+    "file": "LivedInUIShells.tsx",
+    "name": "ChatAppShell",
+    "effect": "Antarmuka aplikasi perpesanan dengan gelembung obrolan masuk bertahap",
+    "use": "Simulasi diskusi pesan bimbingan skripsi antara mahasiswa dan pembimbing",
+    "frames": 90,
+    "sfx": "",
+    "sfxFrames": []
+  },
+  {
+    "file": "LivedInUIShells.tsx",
+    "name": "MacDesktopChrome",
+    "effect": "Tampilan desktop lengkap dengan bilah menu atas dan jam",
+    "use": "Ruang kerja virtual mahasiswa saat menyelesaikan draft naskah skripsi",
+    "frames": 90,
+    "sfx": "",
+    "sfxFrames": []
+  },
+  {
+    "file": "Transitions.tsx",
+    "name": "SeamlessSceneShell",
+    "effect": "Pembungkus adegan dengan transisi masuk dan keluar sinematik mulus",
+    "use": "Transisi halus pergantian bab pembahasan skripsi tanpa jeda visual",
+    "frames": 90,
+    "sfx": "transition-swoosh.wav",
+    "sfxFrames": [65]
+  },
+  {
+    "file": "Transitions.tsx",
+    "name": "SharedElementMorph",
+    "effect": "Elemen bertransformasi posisi ukuran dan bentuk secara kontinu mulus",
+    "use": "Perubahan representasi data grafik awal menjadi kesimpulan akhir riset",
+    "frames": 90,
+    "sfx": "",
+    "sfxFrames": []
+  },
+  {
+    "file": "Transitions.tsx",
+    "name": "SfxCue",
+    "effect": "Pemicu audio efek suara tepat pada titik frame kejadian",
+    "use": "Memberi penekanan suara pada poin penting argumentasi sidang skripsi",
+    "frames": 90,
+    "sfx": "confirm-chime.wav",
+    "sfxFrames": [20]
+  },
+  {
+    "file": "CameraRig.tsx",
+    "name": "CameraRig",
+    "effect": "Kamera virtual melakukan pergeseran pan zoom dan rotasi dinamis",
+    "use": "Menyorot diagram alur metodologi penelitian skripsi secara detail fokus",
+    "frames": 90,
+    "sfx": "",
+    "sfxFrames": []
+  },
+  {
+    "file": "CameraRig.tsx",
+    "name": "ParallaxLayer",
+    "effect": "Lapisan elemen bergerak beda kedalaman menciptakan efek kedalaman paralaks",
+    "use": "Memisahkan latar dan teks inti pada presentasi proposal skripsi",
+    "frames": 90,
+    "sfx": "",
+    "sfxFrames": []
+  },
+  {
+    "file": "AudioStage.tsx",
+    "name": "AudioStage",
+    "effect": "Panggung mixing audio multilapis dengan peredaman musik otomatis dinamis",
+    "use": "TIDAK DIUJI: komponen audio-only tanpa visual (musik latar dilarang)",
+    "frames": 90,
+    "sfx": "",
+    "sfxFrames": []
+  },
+  {
+    "file": "ProceduralBackground.tsx",
+    "name": "ProceduralBackground",
+    "effect": "Latar belakang animasi prosedural bergerak halus tanpa pernah statis",
+    "use": "Latar visual dinamis untuk presentasi poin utama sidang komprehensif",
+    "frames": 90,
+    "sfx": "",
+    "sfxFrames": []
+  },
+  {
+    "file": "BrandLogos.tsx",
+    "name": "BrandLogo",
+    "effect": "Menampilkan logo resmi brand atau proyek secara akurat presisi",
+    "use": "Menampilkan software dan alat analisis yang digunakan dalam riset",
+    "frames": 90,
+    "sfx": "",
+    "sfxFrames": []
+  },
+  {
+    "file": "CustomSVGIcons.tsx",
+    "name": "CustomSVGIcon",
+    "effect": "Ikon vektor fungsional dengan animasi munculan pegas halus natural",
+    "use": "Penanda status keberhasilan dan verifikasi data hasil penelitian skripsi",
+    "frames": 90,
+    "sfx": "",
+    "sfxFrames": []
+  },
+  {
+    "file": "Card3DLayouts.tsx",
+    "name": "Clean3DCardFace",
+    "effect": "Wajah kartu 3D bersih dengan tipografi metrik dan aksen",
+    "use": "Menampilkan kartu ringkasan satu poin temuan penting riset skripsi",
+    "frames": 90,
+    "sfx": "",
+    "sfxFrames": []
+  }
+]
