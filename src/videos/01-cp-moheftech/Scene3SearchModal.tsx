@@ -1,12 +1,8 @@
 import React from "react";
 import {
   AbsoluteFill,
-  Audio,
-  Easing,
   interpolate,
-  Sequence,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
@@ -14,35 +10,38 @@ import { CameraRig } from "../../engine/CameraRig";
 import { DeviceFrame } from "../../engine/DeviceFrame";
 import { SimulatedCursor } from "../../engine/SimulatedCursor";
 import { Typewriter } from "../../engine/Typewriter";
+import { SfxCue } from "../../lib/motion-craft";
 import { FloatingContextPill } from "./FloatingContextPill";
 
-const INPUT_CLICK_FRAME = 138;
-const TYPE_START_LOCAL = 150;
-const FILTER_ACTIVE_FRAME = 172;
-const DETAIL_CLICK_FRAME = 435;
-const MODAL_OPEN_FRAME = 480;
+const INPUT_CLICK_FRAME = 35;
+const TYPE_START_LOCAL = 46;
+const FILTER_ACTIVE_FRAME = 74;
+const DETAIL_HOVER_FRAME = 162;
+const DETAIL_CLICK_FRAME = 182;
+const MODAL_OPEN_FRAME = 200;
+const TIER_HOVER_FRAME = 290;
+const TIER_SELECT_FRAME = 310;
+const WA_HOVER_FRAME = 405;
+const WA_MODAL_CLICK_FRAME = 430;
 
 export const Scene3SearchModal: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // 0s - 2s: Smooth scroll to the top of Layanan section where Search input sits
-  const sectionOffsetY = interpolate(frame, [0, 95], [-160, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: Easing.bezier(0.22, 1, 0.36, 1),
-  });
-
-  const isSearchFocused = frame >= INPUT_CLICK_FRAME && frame < MODAL_OPEN_FRAME;
+  const isSearchFocused =
+    frame >= INPUT_CLICK_FRAME && frame < MODAL_OPEN_FRAME;
   const isFiltered = frame >= FILTER_ACTIVE_FRAME;
   const isHoveringDetailBtn =
-    frame >= 380 && frame < MODAL_OPEN_FRAME;
+    frame >= DETAIL_HOVER_FRAME && frame < MODAL_OPEN_FRAME;
   const isModalOpen = frame >= MODAL_OPEN_FRAME;
+  const isTierSelected = frame >= TIER_SELECT_FRAME;
+  const isHoveringWaBtn = frame >= WA_HOVER_FRAME;
+  const isWaClicked = frame >= WA_MODAL_CLICK_FRAME;
 
   const filterSpring = spring({
     frame: isFiltered ? frame - FILTER_ACTIVE_FRAME : 0,
     fps,
-    config: { damping: 18, stiffness: 140, mass: 0.7 },
+    config: { damping: 18, stiffness: 150, mass: 0.65 },
   });
 
   const detailBtnPress =
@@ -63,8 +62,23 @@ export const Scene3SearchModal: React.FC = () => {
   const modalProgress = spring({
     frame: isModalOpen ? frame - MODAL_OPEN_FRAME : 0,
     fps,
-    config: { damping: 16, stiffness: 135, mass: 0.75 },
+    config: { damping: 16, stiffness: 145, mass: 0.7 },
   });
+
+  const waBtnPress =
+    frame >= WA_MODAL_CLICK_FRAME && frame <= WA_MODAL_CLICK_FRAME + 18
+      ? interpolate(
+          frame - WA_MODAL_CLICK_FRAME,
+          [0, 4, 12, 18],
+          [1, 0.92, 1.04, 1],
+          {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          }
+        )
+      : isHoveringWaBtn
+        ? 1.03
+        : 1;
 
   const complexityRows = [
     {
@@ -99,25 +113,29 @@ export const Scene3SearchModal: React.FC = () => {
         overflow: "hidden",
       }}
     >
-      {/* Audio SFX */}
-      <Sequence from={6}>
-        <Audio src={staticFile("sfx/pop.mp3")} volume={0.75} />
-      </Sequence>
-      <Sequence from={10}>
-        <Audio src={staticFile("sfx/whoosh.mp3")} volume={0.75} />
-      </Sequence>
-      <Sequence from={INPUT_CLICK_FRAME}>
-        <Audio src={staticFile("sfx/click.mp3")} volume={0.85} />
-      </Sequence>
-      <Sequence from={TYPE_START_LOCAL} durationInFrames={45}>
-        <Audio src={staticFile("sfx/typing.mp3")} volume={0.8} />
-      </Sequence>
-      <Sequence from={DETAIL_CLICK_FRAME}>
-        <Audio src={staticFile("sfx/click.mp3")} volume={0.9} />
-      </Sequence>
-      <Sequence from={MODAL_OPEN_FRAME}>
-        <Audio src={staticFile("sfx/pop.mp3")} volume={0.85} />
-      </Sequence>
+      {/* Clean Studio WAV SFX */}
+      <SfxCue frame={4} sfx="pop-in" volume={0.36} />
+      <SfxCue frame={INPUT_CLICK_FRAME - 6} sfx="hover-rollover" volume={0.24} />
+      <SfxCue frame={INPUT_CLICK_FRAME} sfx="click" volume={0.5} />
+      <SfxCue
+        frame={TYPE_START_LOCAL}
+        sfx="typing-soft"
+        durationInFrames={28}
+        volume={0.38}
+      />
+      <SfxCue frame={FILTER_ACTIVE_FRAME} sfx="pop-plop" volume={0.4} />
+      <SfxCue frame={DETAIL_HOVER_FRAME} sfx="hover-rollover" volume={0.25} />
+      <SfxCue frame={DETAIL_CLICK_FRAME} sfx="click" volume={0.52} />
+      <SfxCue frame={MODAL_OPEN_FRAME} sfx="transition-maximize" volume={0.4} />
+      <SfxCue frame={MODAL_OPEN_FRAME + 12} sfx="pop-in" volume={0.32} />
+      <SfxCue frame={MODAL_OPEN_FRAME + 22} sfx="pop-in" volume={0.35} />
+      <SfxCue frame={MODAL_OPEN_FRAME + 32} sfx="pop-in" volume={0.32} />
+      <SfxCue frame={TIER_HOVER_FRAME} sfx="hover-rollover" volume={0.24} />
+      <SfxCue frame={TIER_SELECT_FRAME} sfx="click-select" volume={0.5} />
+      <SfxCue frame={TIER_SELECT_FRAME + 2} sfx="pop-plop" volume={0.38} />
+      <SfxCue frame={WA_HOVER_FRAME} sfx="hover-rollover" volume={0.26} />
+      <SfxCue frame={WA_MODAL_CLICK_FRAME} sfx="click" volume={0.55} />
+      <SfxCue frame={WA_MODAL_CLICK_FRAME + 2} sfx="confirm-chime" volume={0.48} />
 
       {/* Ambient top glow */}
       <div
@@ -138,47 +156,76 @@ export const Scene3SearchModal: React.FC = () => {
       {/* Floating Context Pill */}
       <FloatingContextPill
         text="🔍 Cari Layanan Cepat & Cek Opsi Kompleksitas"
-        startFrame={6}
+        startFrame={4}
       />
 
       {/* CameraRig */}
       <CameraRig
         keyframes={[
-          // Continues from Scene 2 end state
-          { frame: 0, scale: 1.04, x: 0, y: -75, rotateX: 0, rotateY: 0 },
-          // 0s - 2s: Smooth focus toward the Search Bar at top-right of Layanan header
           {
-            frame: 85,
+            frame: 0,
+            scale: 1.12,
+            x: -55,
+            y: 110,
+            rotateX: 0.8,
+            rotateY: 0.8,
+          },
+          // Zoom in on Search Bar at top-right
+          {
+            frame: INPUT_CLICK_FRAME,
             scale: 1.24,
             x: -110,
             y: 230,
             rotateX: 1.5,
             rotateY: 1.5,
           },
-          // 3.2s: Slight pan to show real-time filtered results under Search Bar
           {
-            frame: 185,
-            scale: 1.18,
-            x: -30,
-            y: 150,
-            rotateX: 1,
+            frame: FILTER_ACTIVE_FRAME + 10,
+            scale: 1.2,
+            x: -40,
+            y: 180,
+            rotateX: 1.2,
             rotateY: 0.5,
           },
-          // 5s - 8s: Focus on "Lihat Detail" button of Aplikasi Custom card
+          // Frame the filtered Aplikasi Custom card & Lihat Detail button
           {
-            frame: 310,
-            scale: 1.26,
-            x: 90,
-            y: 120,
-            rotateX: 1.5,
-            rotateY: -1.5,
+            frame: DETAIL_HOVER_FRAME,
+            scale: 1.24,
+            x: 85,
+            y: 130,
+            rotateX: 1.4,
+            rotateY: -1.4,
           },
-          // 8s - 14s: Center & zoom smoothly on Service Detail Modal for comfortable reading
           {
-            frame: MODAL_OPEN_FRAME,
+            frame: DETAIL_CLICK_FRAME + 10,
+            scale: 1.24,
+            x: 85,
+            y: 130,
+            rotateX: 1.4,
+            rotateY: -1.4,
+          },
+          // Center smoothly on the Service Detail Modal
+          {
+            frame: MODAL_OPEN_FRAME + 35,
             scale: 1.14,
             x: 0,
-            y: 15,
+            y: 10,
+            rotateX: 0,
+            rotateY: 0,
+          },
+          {
+            frame: WA_MODAL_CLICK_FRAME + 20,
+            scale: 1.14,
+            x: 0,
+            y: -20,
+            rotateX: 0,
+            rotateY: 0,
+          },
+          {
+            frame: 510,
+            scale: 1.06,
+            x: 0,
+            y: 0,
             rotateX: 0,
             rotateY: 0,
           },
@@ -331,7 +378,6 @@ export const Scene3SearchModal: React.FC = () => {
                     display: "flex",
                     flexDirection: "column",
                     gap: 24,
-                    transform: `translate3d(0, ${sectionOffsetY}px, 0)`,
                   }}
                 >
                   {/* Section Header + Interactive Search Bar */}
@@ -388,7 +434,7 @@ export const Scene3SearchModal: React.FC = () => {
                       </h2>
                     </div>
 
-                    {/* Interactive Search Input */}
+                    {/* Interactive Search Input (Center X = 785, Center Y = 434) */}
                     <div
                       style={{
                         width: 380,
@@ -427,7 +473,7 @@ export const Scene3SearchModal: React.FC = () => {
                         >
                           <Typewriter
                             text="Aplikasi"
-                            startFrame={1380 + 150}
+                            startFrame={TYPE_START_LOCAL}
                             speed={3}
                           />
                         </span>
@@ -741,7 +787,7 @@ export const Scene3SearchModal: React.FC = () => {
                             Mulai dari Rp3.000.000
                           </span>
 
-                          {/* Target Button: Lihat Detail */}
+                          {/* Target Button: Lihat Detail (Center X = 497, Center Y = 780 when filtered) */}
                           <div
                             style={{
                               padding: "10px 22px",
@@ -838,14 +884,14 @@ export const Scene3SearchModal: React.FC = () => {
                   </div>
                 </section>
 
-                {/* ============ SERVICE DETAIL MODAL OVERLAY (8s - 14s) ============ */}
+                {/* ============ SERVICE DETAIL MODAL OVERLAY ============ */}
                 {isModalOpen && (
                   <div
                     style={{
                       position: "absolute",
                       inset: 0,
                       zIndex: 50,
-                      backgroundColor: `rgba(4, 8, 18, ${interpolate(modalProgress, [0, 1], [0, 0.82])})`,
+                      backgroundColor: `rgba(4, 8, 18, ${interpolate(modalProgress, [0, 1], [0, 0.84])})`,
                       backdropFilter: "blur(10px)",
                       display: "flex",
                       alignItems: "center",
@@ -863,8 +909,12 @@ export const Scene3SearchModal: React.FC = () => {
                         boxShadow:
                           "0 32px 80px rgba(0, 0, 0, 0.75), 0 0 60px rgba(59, 130, 246, 0.25)",
                         padding: "36px 40px",
-                        opacity: interpolate(modalProgress, [0, 0.6, 1], [0, 1, 1]),
-                        transform: `translateY(${interpolate(modalProgress, [0, 1], [36, 0])}px) scale(${interpolate(modalProgress, [0, 1], [0.9, 1])})`,
+                        opacity: interpolate(
+                          modalProgress,
+                          [0, 0.6, 1],
+                          [0, 1, 1]
+                        ),
+                        transform: `translateY(${interpolate(modalProgress, [0, 1], [32, 0])}px) scale(${interpolate(modalProgress, [0, 1], [0.92, 1])})`,
                       }}
                     >
                       {/* Modal Header */}
@@ -1002,9 +1052,9 @@ export const Scene3SearchModal: React.FC = () => {
                         >
                           {complexityRows.map((row, idx) => {
                             const rowEnter = spring({
-                              frame: frame - (MODAL_OPEN_FRAME + 12 + idx * 10),
+                              frame: frame - (MODAL_OPEN_FRAME + 10 + idx * 10),
                               fps,
-                              config: { damping: 16, stiffness: 140 },
+                              config: { damping: 16, stiffness: 145 },
                             });
 
                             return (
@@ -1015,18 +1065,26 @@ export const Scene3SearchModal: React.FC = () => {
                                   borderRadius: 14,
                                   backgroundColor:
                                     idx === 1
-                                      ? "rgba(30, 58, 95, 0.55)"
+                                      ? isTierSelected
+                                        ? "rgba(14, 116, 144, 0.48)"
+                                        : "rgba(30, 58, 95, 0.55)"
                                       : "rgba(15, 34, 64, 0.55)",
                                   border:
                                     idx === 1
-                                      ? "1.5px solid rgba(56, 189, 248, 0.5)"
+                                      ? isTierSelected
+                                        ? "2px solid #38bdf8"
+                                        : "1.5px solid rgba(56, 189, 248, 0.5)"
                                       : "1px solid rgba(59, 130, 246, 0.18)",
+                                  boxShadow:
+                                    idx === 1 && isTierSelected
+                                      ? "0 0 28px rgba(56, 189, 248, 0.3)"
+                                      : "none",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "space-between",
                                   gap: 16,
                                   opacity: interpolate(rowEnter, [0, 1], [0, 1]),
-                                  transform: `translateX(${interpolate(rowEnter, [0, 1], [-18, 0])}px)`,
+                                  transform: `translateX(${interpolate(rowEnter, [0, 1], [-18, 0])}px) scale(${idx === 1 && isTierSelected ? 1.015 : 1})`,
                                 }}
                               >
                                 <div style={{ flex: 1 }}>
@@ -1053,12 +1111,17 @@ export const Scene3SearchModal: React.FC = () => {
                                         fontWeight: 800,
                                         padding: "3px 9px",
                                         borderRadius: 9999,
-                                        backgroundColor: "rgba(59, 130, 246, 0.18)",
+                                        backgroundColor:
+                                          idx === 1 && isTierSelected
+                                            ? "rgba(56, 189, 248, 0.28)"
+                                            : "rgba(59, 130, 246, 0.18)",
                                         color: row.accent,
                                         letterSpacing: "0.06em",
                                       }}
                                     >
-                                      {row.badge}
+                                      {idx === 1 && isTierSelected
+                                        ? "✓ DIPILIH • POPULER"
+                                        : row.badge}
                                     </span>
                                   </div>
                                   <p
@@ -1101,13 +1164,14 @@ export const Scene3SearchModal: React.FC = () => {
                         *Harga dapat menyesuaikan kondisi dan kebutuhan.
                       </p>
 
-                      {/* Bottom WhatsApp CTA inside Modal */}
+                      {/* Bottom WhatsApp CTA inside Modal (Center X = 540, Center Y = 1394) */}
                       <div
                         style={{
-                          height: 56,
+                          height: 58,
                           borderRadius: 9999,
-                          background:
-                            "linear-gradient(135deg, #25d366, #128c7e)",
+                          background: isWaClicked
+                            ? "linear-gradient(135deg, #16a34a, #0d9488)"
+                            : "linear-gradient(135deg, #25d366, #128c7e)",
                           color: "#ffffff",
                           fontSize: 17,
                           fontWeight: 700,
@@ -1115,11 +1179,25 @@ export const Scene3SearchModal: React.FC = () => {
                           alignItems: "center",
                           justifyContent: "center",
                           gap: 10,
-                          boxShadow: "0 10px 28px rgba(37, 211, 102, 0.35)",
+                          transform: `scale(${waBtnPress})`,
+                          border: isWaClicked
+                            ? "2px solid #86efac"
+                            : isHoveringWaBtn
+                              ? "1.5px solid rgba(255, 255, 255, 0.45)"
+                              : "none",
+                          boxShadow: isWaClicked
+                            ? "0 0 0 6px rgba(37, 211, 102, 0.35), 0 16px 36px rgba(37, 211, 102, 0.55)"
+                            : isHoveringWaBtn
+                              ? "0 14px 32px rgba(37, 211, 102, 0.48)"
+                              : "0 10px 28px rgba(37, 211, 102, 0.35)",
                         }}
                       >
                         <span>💬</span>
-                        <span>Konsultasi Layanan Ini via WhatsApp</span>
+                        <span>
+                          {isWaClicked
+                            ? "Membuka Konsultasi WhatsApp..."
+                            : "Konsultasi Layanan Ini via WhatsApp"}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -1129,19 +1207,23 @@ export const Scene3SearchModal: React.FC = () => {
           </DeviceFrame>
         </div>
 
-        {/* Simulated Cursor: Search Input -> "Lihat Detail" -> Modal Price Reading */}
+        {/* Simulated Cursor: Exact coordinates for Search Input -> Lihat Detail -> Tier Menengah -> Modal WA Button */}
         <SimulatedCursor
           path={[
-            { frame: 0, x: 380, y: 1390 },
-            { frame: 90, x: 760, y: 432 },
-            { frame: INPUT_CLICK_FRAME, x: 760, y: 432, click: true },
-            { frame: 310, x: 486, y: 808 },
-            { frame: DETAIL_CLICK_FRAME, x: 486, y: 808, click: true },
-            { frame: MODAL_OPEN_FRAME + 30, x: 640, y: 980 },
+            { frame: 0, x: 785, y: 434 },
+            { frame: INPUT_CLICK_FRAME, x: 785, y: 434, click: true },
+            { frame: FILTER_ACTIVE_FRAME + 15, x: 785, y: 434 },
+            { frame: DETAIL_HOVER_FRAME, x: 497, y: 780 },
+            { frame: DETAIL_CLICK_FRAME, x: 497, y: 780, click: true },
+            { frame: MODAL_OPEN_FRAME + 20, x: 497, y: 780 },
+            { frame: TIER_HOVER_FRAME, x: 540, y: 1125 },
+            { frame: TIER_SELECT_FRAME, x: 540, y: 1125, click: true },
+            { frame: TIER_SELECT_FRAME + 20, x: 540, y: 1125 },
+            { frame: WA_HOVER_FRAME, x: 540, y: 1394 },
+            { frame: WA_MODAL_CLICK_FRAME, x: 540, y: 1394, click: true },
           ]}
         />
       </CameraRig>
     </AbsoluteFill>
   );
 };
-

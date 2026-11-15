@@ -1,55 +1,56 @@
 import React from "react";
 import {
   AbsoluteFill,
-  Audio,
   Easing,
   interpolate,
-  Sequence,
   spring,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
 import { CameraRig } from "../../engine/CameraRig";
 import { DeviceFrame } from "../../engine/DeviceFrame";
 import { SimulatedCursor } from "../../engine/SimulatedCursor";
+import { SfxCue } from "../../lib/motion-craft";
 import { FloatingContextPill } from "./FloatingContextPill";
+
+const PILAR1_HOVER = 115;
+const PILAR1_CLICK = 135;
+const PILAR2_HOVER = 222;
+const PILAR2_CLICK = 242;
+const PILAR3_HOVER = 332;
+const PILAR3_CLICK = 352;
 
 export const Scene2Services: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Smooth page scroll from Home down to Layanan section during 0s - 2s (frames 0 - 110)
-  const pageScrollY = interpolate(frame, [6, 105], [0, -1180], {
+  // Seamless continuation from Scene 1 pre-scroll (-260 -> -1180 in 60 frames)
+  const pageScrollY = interpolate(frame, [0, 62], [-260, -1180], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
     easing: Easing.bezier(0.22, 1, 0.36, 1),
   });
 
-  // Hover states:
-  // 1) Pilar 1 (Kiri): frame 140..300
-  // 2) Pilar 2 (Kanan): frame 325..540
-  // 3) Pilar 3 (Kiri -> Overview): frame 565..780
-  const hoverPilar1Left = frame >= 140 && frame < 300;
-  const hoverPilar2Right = frame >= 325 && frame < 540;
-  const hoverPilar3 = frame >= 565;
+  const hoverPilar1Left = frame >= PILAR1_HOVER && frame < PILAR2_HOVER - 15;
+  const hoverPilar2Right = frame >= PILAR2_HOVER && frame < PILAR3_HOVER - 15;
+  const hoverPilar3 = frame >= PILAR3_HOVER;
 
   const card1Lift = spring({
-    frame: hoverPilar1Left ? frame - 140 : 0,
+    frame: hoverPilar1Left ? frame - PILAR1_HOVER : 0,
     fps,
-    config: { damping: 16, stiffness: 150, mass: 0.6 },
+    config: { damping: 16, stiffness: 160, mass: 0.6 },
   });
 
   const card2RightLift = spring({
-    frame: hoverPilar2Right ? frame - 325 : 0,
+    frame: hoverPilar2Right ? frame - PILAR2_HOVER : 0,
     fps,
-    config: { damping: 16, stiffness: 150, mass: 0.6 },
+    config: { damping: 16, stiffness: 160, mass: 0.6 },
   });
 
   const card3Lift = spring({
-    frame: hoverPilar3 ? frame - 565 : 0,
+    frame: hoverPilar3 ? frame - PILAR3_HOVER : 0,
     fps,
-    config: { damping: 16, stiffness: 150, mass: 0.6 },
+    config: { damping: 16, stiffness: 160, mass: 0.6 },
   });
 
   return (
@@ -61,22 +62,20 @@ export const Scene2Services: React.FC = () => {
         overflow: "hidden",
       }}
     >
-      {/* Audio SFX */}
-      <Sequence from={6}>
-        <Audio src={staticFile("sfx/pop.mp3")} volume={0.75} />
-      </Sequence>
-      <Sequence from={10}>
-        <Audio src={staticFile("sfx/whoosh.mp3")} volume={0.8} />
-      </Sequence>
-      <Sequence from={140}>
-        <Audio src={staticFile("sfx/pop.mp3")} volume={0.65} />
-      </Sequence>
-      <Sequence from={325}>
-        <Audio src={staticFile("sfx/pop.mp3")} volume={0.65} />
-      </Sequence>
-      <Sequence from={565}>
-        <Audio src={staticFile("sfx/pop.mp3")} volume={0.6} />
-      </Sequence>
+      {/* Clean Studio WAV SFX */}
+      <SfxCue frame={2} sfx="transition-scroll" volume={0.42} />
+      <SfxCue frame={6} sfx="pop-in" volume={0.36} />
+      <SfxCue frame={PILAR1_HOVER} sfx="hover-rollover" volume={0.25} />
+      <SfxCue frame={PILAR1_CLICK} sfx="click-soft" volume={0.5} />
+      <SfxCue frame={PILAR1_CLICK + 2} sfx="pop-plop" volume={0.38} />
+      <SfxCue frame={168} sfx="transition-whoosh-soft" volume={0.32} />
+      <SfxCue frame={PILAR2_HOVER} sfx="hover-rollover" volume={0.25} />
+      <SfxCue frame={PILAR2_CLICK} sfx="click-soft" volume={0.5} />
+      <SfxCue frame={PILAR2_CLICK + 2} sfx="pop-plop" volume={0.38} />
+      <SfxCue frame={275} sfx="transition-whoosh-soft" volume={0.32} />
+      <SfxCue frame={PILAR3_HOVER} sfx="hover-rollover" volume={0.25} />
+      <SfxCue frame={PILAR3_CLICK} sfx="click-soft" volume={0.5} />
+      <SfxCue frame={PILAR3_CLICK + 2} sfx="pop-plop" volume={0.38} />
 
       {/* Ambient top glow */}
       <div
@@ -97,41 +96,73 @@ export const Scene2Services: React.FC = () => {
       {/* Floating Context Pill */}
       <FloatingContextPill
         text="💡 3 Pilar Layanan & Transparansi Harga Referensi"
-        startFrame={6}
+        startFrame={4}
       />
 
-      {/* Camera Rig: Kiri (Pilar 1) -> Kanan (Pilar 2) -> Zoom Out Utuh (Pilar 3) */}
+      {/* Dynamic Camera Rig: Continuous motion across all 3 pillars */}
       <CameraRig
         keyframes={[
-          // Lanjut mulus dari state akhir Scene 1 lalu kembali netral saat scroll
-          { frame: 0, scale: 1.22, x: 85, y: 25, rotateX: 2, rotateY: -1.5 },
-          { frame: 12, scale: 1, x: 0, y: 0, rotateX: 0, rotateY: 0 },
-          // Detik 2 - 5: Zoom-in ke KIRI menyorot Pilar 1 (Harga Pasti)
+          { frame: 0, scale: 1.06, x: 0, y: -15, rotateX: 0.5, rotateY: 0 },
+          { frame: 55, scale: 1.02, x: 0, y: 0, rotateX: 0, rotateY: 0 },
+          // Focus Pillar 1 (Left: Harga Pasti)
           {
-            frame: 120,
-            scale: 1.25,
+            frame: PILAR1_HOVER,
+            scale: 1.24,
             x: 135,
-            y: 155,
+            y: 165,
             rotateX: 1.5,
-            rotateY: -2,
+            rotateY: -1.8,
           },
-          // Detik 5 - 9: Zoom & Pan mengikuti ke KANAN menyorot Pilar 2 (Mulai Dari)
           {
-            frame: 300,
-            scale: 1.26,
+            frame: PILAR1_CLICK + 25,
+            scale: 1.24,
+            x: 135,
+            y: 165,
+            rotateX: 1.5,
+            rotateY: -1.8,
+          },
+          // Pan right to Pillar 2 (Right: Mulai Dari)
+          {
+            frame: PILAR2_HOVER,
+            scale: 1.24,
             x: -135,
-            y: -135,
+            y: -20,
             rotateX: 1.5,
-            rotateY: 2,
+            rotateY: 1.8,
           },
-          // Detik 9 - 13: Pan ke Pilar 3 lalu Zoom-out menampilkan ke-3 Pilar utuh
           {
-            frame: 540,
-            scale: 1.04,
-            x: 0,
-            y: -75,
-            rotateX: 0,
-            rotateY: 0,
+            frame: PILAR2_CLICK + 25,
+            scale: 1.24,
+            x: -135,
+            y: -20,
+            rotateX: 1.5,
+            rotateY: 1.8,
+          },
+          // Pan down-left to Pillar 3 (Left Bottom: Konsultasi)
+          {
+            frame: PILAR3_HOVER,
+            scale: 1.2,
+            x: 115,
+            y: -185,
+            rotateX: 1.2,
+            rotateY: -1.5,
+          },
+          {
+            frame: PILAR3_CLICK + 25,
+            scale: 1.2,
+            x: 115,
+            y: -185,
+            rotateX: 1.2,
+            rotateY: -1.5,
+          },
+          // Pull back & glide toward Search Bar at top-right for Scene 3
+          {
+            frame: 450,
+            scale: 1.12,
+            x: -55,
+            y: 110,
+            rotateX: 0.8,
+            rotateY: 0.8,
           },
         ]}
       >
@@ -224,7 +255,7 @@ export const Scene2Services: React.FC = () => {
                     style={{
                       fontSize: 16,
                       fontWeight: 500,
-                      color: frame < 55 ? "#e8edf5" : "#94a3b8",
+                      color: frame < 30 ? "#e8edf5" : "#94a3b8",
                     }}
                   >
                     Home
@@ -233,10 +264,10 @@ export const Scene2Services: React.FC = () => {
                     style={{
                       fontSize: 16,
                       fontWeight: 600,
-                      color: frame >= 55 ? "#e8edf5" : "#94a3b8",
+                      color: frame >= 30 ? "#e8edf5" : "#94a3b8",
                       paddingBottom: 4,
                       borderBottom:
-                        frame >= 55
+                        frame >= 30
                           ? "2px solid #3b82f6"
                           : "2px solid transparent",
                     }}
@@ -573,13 +604,13 @@ export const Scene2Services: React.FC = () => {
                             padding: "22px 24px",
                             borderRadius: 18,
                             backgroundColor: hoverPilar1Left
-                              ? "rgba(20, 50, 92, 0.92)"
+                              ? "rgba(20, 50, 92, 0.94)"
                               : "rgba(15, 34, 64, 0.75)",
                             border: hoverPilar1Left
-                              ? "2px solid rgba(56, 189, 248, 0.85)"
+                              ? "2px solid rgba(56, 189, 248, 0.9)"
                               : "1px solid rgba(59, 130, 246, 0.22)",
                             boxShadow: hoverPilar1Left
-                              ? "0 20px 44px rgba(0, 0, 0, 0.55), 0 0 32px rgba(59, 130, 246, 0.32)"
+                              ? "0 20px 44px rgba(0, 0, 0, 0.55), 0 0 32px rgba(59, 130, 246, 0.35)"
                               : "0 8px 24px rgba(0, 0, 0, 0.25)",
                             transform: `translateY(${interpolate(card1Lift, [0, 1], [0, -8])}px) scale(${interpolate(card1Lift, [0, 1], [1, 1.02])})`,
                             display: "flex",
@@ -609,8 +640,8 @@ export const Scene2Services: React.FC = () => {
                                   height: 46,
                                   borderRadius: 12,
                                   background:
-                                    "linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(6, 182, 212, 0.2))",
-                                  border: "1px solid rgba(59, 130, 246, 0.4)",
+                                    "linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(6, 182, 212, 0.18))",
+                                  border: "1px solid rgba(16, 185, 129, 0.4)",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
@@ -635,10 +666,11 @@ export const Scene2Services: React.FC = () => {
                                     margin: "4px 0 0",
                                     fontSize: 14,
                                     color: "#94a3b8",
+                                    lineHeight: 1.45,
                                   }}
                                 >
-                                  Pemasangan modul RAM laptop/PC, uji stabilitas
-                                  sistem & garansi pengerjaan.
+                                  Termasuk pemasangan modul RAM laptop/PC,
+                                  pembersihan slot & uji stabilitas sistem.
                                 </p>
                               </div>
                             </div>
@@ -648,7 +680,7 @@ export const Scene2Services: React.FC = () => {
                                 padding: "5px 12px",
                                 borderRadius: 9999,
                                 backgroundColor: "rgba(16, 185, 129, 0.16)",
-                                border: "1px solid rgba(16, 185, 129, 0.45)",
+                                border: "1px solid rgba(52, 211, 153, 0.45)",
                                 color: "#34d399",
                                 fontSize: 11,
                                 fontWeight: 800,
@@ -669,47 +701,33 @@ export const Scene2Services: React.FC = () => {
                               borderTop: "1px solid rgba(59, 130, 246, 0.15)",
                             }}
                           >
-                            <div
+                            <span
                               style={{
-                                display: "flex",
-                                alignItems: "baseline",
-                                gap: 10,
+                                fontSize: 24,
+                                fontWeight: 800,
+                                background:
+                                  "linear-gradient(135deg, #34d399, #06b6d4)",
+                                WebkitBackgroundClip: "text",
+                                WebkitTextFillColor: "transparent",
                               }}
                             >
-                              <span
-                                style={{
-                                  fontSize: 24,
-                                  fontWeight: 800,
-                                  background:
-                                    "linear-gradient(135deg, #34d399, #06b6d4)",
-                                  WebkitBackgroundClip: "text",
-                                  WebkitTextFillColor: "transparent",
-                                }}
-                              >
-                                Rp350.000
-                              </span>
-                              <span
-                                style={{
-                                  fontSize: 13,
-                                  color: "#94a3b8",
-                                  fontWeight: 500,
-                                }}
-                              >
-                                (di luar sparepart)
-                              </span>
-                            </div>
+                              Rp350.000
+                            </span>
 
                             <span
                               style={{
                                 fontSize: 13,
-                                fontWeight: 600,
-                                color: "#60a5fa",
+                                fontWeight: 700,
+                                color: hoverPilar1Left ? "#ffffff" : "#60a5fa",
                                 padding: "6px 14px",
                                 borderRadius: 9999,
+                                background: hoverPilar1Left
+                                  ? "linear-gradient(135deg, #3b82f6, #06b6d4)"
+                                  : "rgba(59, 130, 246, 0.12)",
                                 border: "1px solid rgba(59, 130, 246, 0.35)",
                               }}
                             >
-                              Lihat Detail →
+                              Detail Harga →
                             </span>
                           </div>
                         </div>
@@ -740,13 +758,13 @@ export const Scene2Services: React.FC = () => {
                                 style={{
                                   fontSize: 11,
                                   fontWeight: 700,
-                                  color: "#34d399",
+                                  color: "#38bdf8",
                                   padding: "3px 10px",
                                   borderRadius: 9999,
-                                  backgroundColor: "rgba(16, 185, 129, 0.12)",
+                                  backgroundColor: "rgba(56, 189, 248, 0.14)",
                                 }}
                               >
-                                HARGA PASTI
+                                PER TITIK
                               </span>
                             </div>
                             <h4
@@ -767,13 +785,13 @@ export const Scene2Services: React.FC = () => {
                                 lineHeight: 1.5,
                               }}
                             >
-                              Setting router, manajemen bandwidth & titik akses
-                              kantor.
+                              Penarikan kabel LAN & konfigurasi manajemen
+                              bandwidth kantor.
                             </p>
                           </div>
                           <div
                             style={{
-                              fontSize: 18,
+                              fontSize: 19,
                               fontWeight: 800,
                               color: "#38bdf8",
                               marginTop: 12,
@@ -822,7 +840,7 @@ export const Scene2Services: React.FC = () => {
                           gap: 18,
                         }}
                       >
-                        {/* Left Companion Card in Pillar 2 */}
+                        {/* Secondary Left Card in Pillar 2 */}
                         <div
                           style={{
                             padding: "22px 22px",
@@ -843,7 +861,7 @@ export const Scene2Services: React.FC = () => {
                                 marginBottom: 8,
                               }}
                             >
-                              <span style={{ fontSize: 20 }}>🏢</span>
+                              <span style={{ fontSize: 20 }}>📱</span>
                               <span
                                 style={{
                                   fontSize: 11,
@@ -865,7 +883,7 @@ export const Scene2Services: React.FC = () => {
                                 color: "#e8edf5",
                               }}
                             >
-                              Company Profile & Landing Page
+                              Aplikasi Katalog & Company Profile
                             </h4>
                             <p
                               style={{
@@ -875,12 +893,13 @@ export const Scene2Services: React.FC = () => {
                                 lineHeight: 1.5,
                               }}
                             >
-                              Website responsif cepat dengan panel admin & SEO.
+                              Website profil perusahaan modern responsif &
+                              optimasi SEO dasar.
                             </p>
                           </div>
                           <div
                             style={{
-                              fontSize: 18,
+                              fontSize: 19,
                               fontWeight: 800,
                               color: "#38bdf8",
                               marginTop: 12,
@@ -890,19 +909,19 @@ export const Scene2Services: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Featured RIGHT Card: Pengembangan Sistem & Web App */}
+                        {/* Featured Right Card: Pengembangan Sistem & Web App */}
                         <div
                           style={{
                             padding: "22px 24px",
                             borderRadius: 18,
                             backgroundColor: hoverPilar2Right
                               ? "rgba(20, 50, 92, 0.94)"
-                              : "rgba(15, 34, 64, 0.75)",
+                              : "rgba(15, 34, 64, 0.78)",
                             border: hoverPilar2Right
-                              ? "2px solid rgba(56, 189, 248, 0.85)"
-                              : "1px solid rgba(59, 130, 246, 0.22)",
+                              ? "2px solid rgba(6, 182, 212, 0.9)"
+                              : "1px solid rgba(59, 130, 246, 0.25)",
                             boxShadow: hoverPilar2Right
-                              ? "0 20px 44px rgba(0, 0, 0, 0.55), 0 0 32px rgba(59, 130, 246, 0.34)"
+                              ? "0 20px 44px rgba(0, 0, 0, 0.55), 0 0 34px rgba(6, 182, 212, 0.35)"
                               : "0 8px 24px rgba(0, 0, 0, 0.25)",
                             transform: `translateY(${interpolate(card2RightLift, [0, 1], [0, -8])}px) scale(${interpolate(card2RightLift, [0, 1], [1, 1.02])})`,
                             display: "flex",
@@ -933,7 +952,7 @@ export const Scene2Services: React.FC = () => {
                                   borderRadius: 12,
                                   background:
                                     "linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(6, 182, 212, 0.2))",
-                                  border: "1px solid rgba(59, 130, 246, 0.4)",
+                                  border: "1px solid rgba(59, 130, 246, 0.45)",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
@@ -958,10 +977,11 @@ export const Scene2Services: React.FC = () => {
                                     margin: "4px 0 0",
                                     fontSize: 14,
                                     color: "#94a3b8",
+                                    lineHeight: 1.45,
                                   }}
                                 >
-                                  Pembuatan aplikasi web, dashboard operasional
-                                  & sistem informasi sesuai proses bisnis.
+                                  Pembuatan aplikasi web custom, dashboard
+                                  operasional & integrasi database bisnis.
                                 </p>
                               </div>
                             </div>
@@ -971,7 +991,7 @@ export const Scene2Services: React.FC = () => {
                                 padding: "5px 12px",
                                 borderRadius: 9999,
                                 backgroundColor: "rgba(59, 130, 246, 0.18)",
-                                border: "1px solid rgba(59, 130, 246, 0.5)",
+                                border: "1px solid rgba(59, 130, 246, 0.45)",
                                 color: "#60a5fa",
                                 fontSize: 11,
                                 fontWeight: 800,
@@ -1068,13 +1088,13 @@ export const Scene2Services: React.FC = () => {
                             padding: "22px 24px",
                             borderRadius: 18,
                             backgroundColor: hoverPilar3
-                              ? "rgba(20, 50, 92, 0.92)"
+                              ? "rgba(20, 50, 92, 0.94)"
                               : "rgba(15, 34, 64, 0.75)",
                             border: hoverPilar3
-                              ? "2px solid rgba(167, 139, 250, 0.85)"
+                              ? "2px solid rgba(167, 139, 250, 0.9)"
                               : "1px solid rgba(59, 130, 246, 0.22)",
                             boxShadow: hoverPilar3
-                              ? "0 20px 44px rgba(0, 0, 0, 0.55), 0 0 32px rgba(139, 92, 246, 0.28)"
+                              ? "0 20px 44px rgba(0, 0, 0, 0.55), 0 0 32px rgba(139, 92, 246, 0.32)"
                               : "0 8px 24px rgba(0, 0, 0, 0.25)",
                             transform: `translateY(${interpolate(card3Lift, [0, 1], [0, -8])}px) scale(${interpolate(card3Lift, [0, 1], [1, 1.02])})`,
                             display: "flex",
@@ -1181,10 +1201,13 @@ export const Scene2Services: React.FC = () => {
                             <span
                               style={{
                                 fontSize: 13,
-                                fontWeight: 600,
-                                color: "#c4b5fd",
+                                fontWeight: 700,
+                                color: hoverPilar3 ? "#ffffff" : "#c4b5fd",
                                 padding: "6px 14px",
                                 borderRadius: 9999,
+                                background: hoverPilar3
+                                  ? "linear-gradient(135deg, #8b5cf6, #3b82f6)"
+                                  : "transparent",
                                 border: "1px solid rgba(167, 139, 250, 0.4)",
                               }}
                             >
@@ -1303,13 +1326,21 @@ export const Scene2Services: React.FC = () => {
           </DeviceFrame>
         </div>
 
-        {/* Simulated Cursor: Kiri (Pilar 1) -> Kanan (Pilar 2) -> Kiri-Bawah (Pilar 3) */}
+        {/* Simulated Cursor: Exact button coordinates on each of the 3 Pillar cards */}
         <SimulatedCursor
           path={[
-            { frame: 0, x: 396, y: 954 },
-            { frame: 120, x: 350, y: 690 },
-            { frame: 300, x: 735, y: 1050 },
-            { frame: 540, x: 380, y: 1390 },
+            { frame: 0, x: 396, y: 820 },
+            { frame: 55, x: 420, y: 760 },
+            { frame: PILAR1_HOVER, x: 505, y: 722 },
+            { frame: PILAR1_CLICK, x: 505, y: 722, click: true },
+            { frame: 165, x: 505, y: 722 },
+            { frame: PILAR2_HOVER, x: 905, y: 1008 },
+            { frame: PILAR2_CLICK, x: 905, y: 1008, click: true },
+            { frame: 270, x: 905, y: 1008 },
+            { frame: PILAR3_HOVER, x: 495, y: 1296 },
+            { frame: PILAR3_CLICK, x: 495, y: 1296, click: true },
+            { frame: 380, x: 495, y: 1296 },
+            { frame: 450, x: 785, y: 434 },
           ]}
         />
       </CameraRig>

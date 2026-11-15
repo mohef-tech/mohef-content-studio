@@ -13,3 +13,8 @@ SEBELUM membuat scene/animasi baru:
    - Kamera, Transisi & SFX: `CameraRig`, `ParallaxLayer`, `SeamlessSceneShell`, `SharedElementMorph`, `SfxCue`, `ProceduralBackground`, `BrandLogo`, `CustomSVGIcon`
 3. Untuk efek suara tambahan, gunakan `<SfxCue frame={...} sfx="nama-sfx" volume={0.5} />` yang mengambil file dari `public/audio/sfx/<nama-sfx>.wav`.
 4. Jangan mengubah isi file di dalam `src/lib/motion-craft/`. Atur warna, ukuran, dan konten lewat props.
+
+### STANDAR RENDER & VERIFIKASI VISUAL (MACOS / 3D WEBGL)
+1. **Perintah Render Wajib:** Setiap kali menjalankan render MP4 (baik video penuh maupun per-scene), selalu gunakan *Chrome Headless Shell* bawaan Remotion dengan flag WebGL `angle` dan batasan CPU `concurrency=2`:
+   ```bash
+   npx remotion render <CompositionId> out/<NamaFile>.mp4 --gl=angle --concurrency=2
