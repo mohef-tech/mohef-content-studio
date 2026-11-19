@@ -1,0 +1,112 @@
+[
+  {
+    "text": "Listrik",
+    "startMs": 100,
+    "endMs": 512
+  },
+  {
+    "text": "sudah",
+    "startMs": 512,
+    "endMs": 712
+  },
+  {
+    "text": "aman",
+    "startMs": 712,
+    "endMs": 962
+  },
+  {
+    "text": "dari",
+    "startMs": 962,
+    "endMs": 1112
+  },
+  {
+    "text": "Episode",
+    "startMs": 1112,
+    "endMs": 1500
+  },
+  {
+    "text": "satu",
+    "startMs": 1500,
+    "endMs": 2050
+  },
+  {
+    "text": "sekarang",
+    "startMs": 2312,
+    "endMs": 2712
+  },
+  {
+    "text": "pilih",
+    "startMs": 2712,
+    "endMs": 2938
+  },
+  {
+    "text": "P-C-nya",
+    "startMs": 2938,
+    "endMs": 3575
+  },
+  {
+    "text": "Paket",
+    "startMs": 4425,
+    "endMs": 4688
+  },
+  {
+    "text": "rakitan",
+    "startMs": 4688,
+    "endMs": 5100
+  },
+  {
+    "text": "jadi",
+    "startMs": 5100,
+    "endMs": 5288
+  },
+  {
+    "text": "sering",
+    "startMs": 5288,
+    "endMs": 5525
+  },
+  {
+    "text": "nanggung",
+    "startMs": 5525,
+    "endMs": 6088
+  },
+  {
+    "text": "P-S-U",
+    "startMs": 6338,
+    "endMs": 6700
+  },
+  {
+    "text": "pas-pasan",
+    "startMs": 6700,
+    "endMs": 7238
+  },
+  {
+    "text": "dan",
+    "startMs": 7238,
+    "endMs": 7388
+  },
+  {
+    "text": "pengap",
+    "startMs": 7388,
+    "endMs": 7850
+  },
+  {
+    "text": "Lebih",
+    "startMs": 8688,
+    "endMs": 9012
+  },
+  {
+    "text": "baik",
+    "startMs": 9012,
+    "endMs": 9275
+  },
+  {
+    "text": "rakit",
+    "startMs": 9275,
+    "endMs": 9562
+  },
+  {
+    "text": "terukur",
+    "startMs": 9562,
+    "endMs": 10138
+  }
+]

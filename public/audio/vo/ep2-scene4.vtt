@@ -1,0 +1,25 @@
+WEBVTT
+
+00:00:00.100 --> 00:00:02.562
+Setelah menyala unit wajib melewati tiga
+
+00:00:02.562 --> 00:00:06.312
+tahap uji keamanan Pertama audit manajemen
+
+00:00:06.312 --> 00:00:08.188
+kabel dan penguncian soket daya agar
+
+00:00:08.188 --> 00:00:11.388
+bebas korslet Kedua cek POST BIOS
+
+00:00:11.388 --> 00:00:13.850
+di monitor untuk memastikan CPU RAM
+
+00:00:14.088 --> 00:00:17.788
+dan NVMe terbaca penuh Ketiga simulasi
+
+00:00:17.788 --> 00:00:19.362
+airflow dan uji beban suhu agar
+
+00:00:19.362 --> 00:00:21.350
+sistem terbukti stabil sebelum dikirim

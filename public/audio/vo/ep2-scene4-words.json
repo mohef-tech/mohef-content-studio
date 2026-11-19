@@ -1,0 +1,237 @@
+[
+  {
+    "text": "Setelah",
+    "startMs": 100,
+    "endMs": 462
+  },
+  {
+    "text": "menyala",
+    "startMs": 462,
+    "endMs": 1050
+  },
+  {
+    "text": "unit",
+    "startMs": 1350,
+    "endMs": 1600
+  },
+  {
+    "text": "wajib",
+    "startMs": 1600,
+    "endMs": 1925
+  },
+  {
+    "text": "melewati",
+    "startMs": 1925,
+    "endMs": 2312
+  },
+  {
+    "text": "tiga",
+    "startMs": 2312,
+    "endMs": 2562
+  },
+  {
+    "text": "tahap",
+    "startMs": 2562,
+    "endMs": 2838
+  },
+  {
+    "text": "uji",
+    "startMs": 2838,
+    "endMs": 3112
+  },
+  {
+    "text": "keamanan",
+    "startMs": 3112,
+    "endMs": 3775
+  },
+  {
+    "text": "Pertama",
+    "startMs": 4625,
+    "endMs": 5262
+  },
+  {
+    "text": "audit",
+    "startMs": 5562,
+    "endMs": 5900
+  },
+  {
+    "text": "manajemen",
+    "startMs": 5900,
+    "endMs": 6312
+  },
+  {
+    "text": "kabel",
+    "startMs": 6312,
+    "endMs": 6662
+  },
+  {
+    "text": "dan",
+    "startMs": 6662,
+    "endMs": 6838
+  },
+  {
+    "text": "penguncian",
+    "startMs": 6838,
+    "endMs": 7250
+  },
+  {
+    "text": "soket",
+    "startMs": 7250,
+    "endMs": 7538
+  },
+  {
+    "text": "daya",
+    "startMs": 7538,
+    "endMs": 7875
+  },
+  {
+    "text": "agar",
+    "startMs": 7875,
+    "endMs": 8188
+  },
+  {
+    "text": "bebas",
+    "startMs": 8188,
+    "endMs": 8512
+  },
+  {
+    "text": "korslet",
+    "startMs": 8512,
+    "endMs": 9050
+  },
+  {
+    "text": "Kedua",
+    "startMs": 9900,
+    "endMs": 10450
+  },
+  {
+    "text": "cek",
+    "startMs": 10750,
+    "endMs": 10938
+  },
+  {
+    "text": "POST",
+    "startMs": 10938,
+    "endMs": 11125
+  },
+  {
+    "text": "BIOS",
+    "startMs": 11125,
+    "endMs": 11388
+  },
+  {
+    "text": "di",
+    "startMs": 11388,
+    "endMs": 11450
+  },
+  {
+    "text": "monitor",
+    "startMs": 11450,
+    "endMs": 11850
+  },
+  {
+    "text": "untuk",
+    "startMs": 11850,
+    "endMs": 12050
+  },
+  {
+    "text": "memastikan",
+    "startMs": 12050,
+    "endMs": 12525
+  },
+  {
+    "text": "CPU",
+    "startMs": 12525,
+    "endMs": 13112
+  },
+  {
+    "text": "RAM",
+    "startMs": 13375,
+    "endMs": 13850
+  },
+  {
+    "text": "dan",
+    "startMs": 14088,
+    "endMs": 14325
+  },
+  {
+    "text": "NVMe",
+    "startMs": 14325,
+    "endMs": 14712
+  },
+  {
+    "text": "terbaca",
+    "startMs": 14712,
+    "endMs": 15100
+  },
+  {
+    "text": "penuh",
+    "startMs": 15100,
+    "endMs": 15538
+  },
+  {
+    "text": "Ketiga",
+    "startMs": 16388,
+    "endMs": 17012
+  },
+  {
+    "text": "simulasi",
+    "startMs": 17312,
+    "endMs": 17788
+  },
+  {
+    "text": "airflow",
+    "startMs": 17788,
+    "endMs": 18200
+  },
+  {
+    "text": "dan",
+    "startMs": 18200,
+    "endMs": 18362
+  },
+  {
+    "text": "uji",
+    "startMs": 18362,
+    "endMs": 18588
+  },
+  {
+    "text": "beban",
+    "startMs": 18588,
+    "endMs": 18825
+  },
+  {
+    "text": "suhu",
+    "startMs": 18825,
+    "endMs": 19138
+  },
+  {
+    "text": "agar",
+    "startMs": 19138,
+    "endMs": 19362
+  },
+  {
+    "text": "sistem",
+    "startMs": 19362,
+    "endMs": 19700
+  },
+  {
+    "text": "terbukti",
+    "startMs": 19700,
+    "endMs": 20038
+  },
+  {
+    "text": "stabil",
+    "startMs": 20038,
+    "endMs": 20475
+  },
+  {
+    "text": "sebelum",
+    "startMs": 20475,
+    "endMs": 20788
+  },
+  {
+    "text": "dikirim",
+    "startMs": 20788,
+    "endMs": 21350
+  }
+]

@@ -1,1349 +1,331 @@
-import React from "react";
+import React from 'react';
 import {
   AbsoluteFill,
-  Easing,
-  interpolate,
+  Audio,
   spring,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
-} from "remotion";
-import { CameraRig } from "../../engine/CameraRig";
-import { DeviceFrame } from "../../engine/DeviceFrame";
-import { SimulatedCursor } from "../../engine/SimulatedCursor";
-import { SfxCue } from "../../lib/motion-craft";
-import { FloatingContextPill } from "./FloatingContextPill";
+} from 'remotion';
+import { loadFont as loadAnton } from '@remotion/google-fonts/Anton';
+import { loadFont as loadJakarta } from '@remotion/google-fonts/PlusJakartaSans';
+import { BentoGridReveal, SfxCue, type BentoCellItem } from '../../lib/motion-craft';
+import { MohefTechHub3D } from './MohefTechHub3D';
 
-const PILAR1_HOVER = 115;
-const PILAR1_CLICK = 135;
-const PILAR2_HOVER = 222;
-const PILAR2_CLICK = 242;
-const PILAR3_HOVER = 332;
-const PILAR3_CLICK = 352;
+const { fontFamily: ANTON } = loadAnton();
+const { fontFamily: JAKARTA } = loadJakarta('normal', {
+  weights: ['600', '700', '800'],
+  subsets: ['latin'],
+});
 
-export const Scene2Services: React.FC = () => {
+export const SCENE2_DURATION = 330;
+
+const INK = '#1F1F1F';
+const MOHEF_BLUE = '#0056D2';
+const MOHEF_DARK = '#0A2A35';
+const EMERALD = '#10B981';
+
+const BENTO_ITEMS: BentoCellItem[] = [
+  {
+    id: 'bento-spatial',
+    colSpan: 1,
+    rowSpan: 1,
+    revealWave: 1,
+    indexLabel: '01 • SPATIAL & LAYOUT',
+    title: 'Desain 3D Ruang, Rak & Meja Kasir',
+    subtitle:
+      'Simulasi penempatan rak display, alur pengunjung, dan titik meja PC Kasir (POS) sebelum dibangun.',
+    surfaceColor: 'linear-gradient(180deg, #ECFDF5 0%, #D1FAE5 100%)',
+    textColor: INK,
+    accentColor: EMERALD,
+  },
+  {
+    id: 'bento-utility',
+    colSpan: 1,
+    rowSpan: 1,
+    revealWave: 2,
+    indexLabel: '02 • UTILITAS FISIK',
+    title: 'Skema Jalur Listrik & Air Bersih',
+    subtitle:
+      'Pemetaan beban daya workstation/kasir, jalur kabel rapi, serta instalasi titik pipa air toko/kafe.',
+    surfaceColor: 'linear-gradient(180deg, #FFF7ED 0%, #FFEDD5 100%)',
+    textColor: INK,
+    accentColor: '#F97316',
+  },
+  {
+    id: 'bento-security-net',
+    colSpan: 2,
+    rowSpan: 1,
+    revealWave: 3,
+    indexLabel: '03 • KEAMANAN & KONEKTIVITAS',
+    title: 'Titik Sudut CCTV, Wi-Fi Access Point (AP) & Server Lokal',
+    subtitle:
+      'Sudut pantau CCTV bebas blind-spot, sebaran sinyal AP merata ke seluruh toko, dan Home/Local Server 24/7.',
+    surfaceColor: 'linear-gradient(180deg, #EFF6FF 0%, #DBEAFE 100%)',
+    textColor: INK,
+    accentColor: MOHEF_BLUE,
+  },
+];
+
+// ============================================================================
+// ZONA ATAS (Y: 105px s/d 320px) — Header Studi Kasus Pilar 01
+// ============================================================================
+const CaseStudyHeader: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
+  const badgeIn = spring({ frame, fps, config: { damping: 16, stiffness: 170 } });
+  const bannerIn = spring({ frame: frame - 4, fps, config: { damping: 14, stiffness: 160, mass: 0.75 } });
+  const subIn = spring({ frame: frame - 10, fps, config: { damping: 16, stiffness: 155 } });
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: 105,
+        left: 0,
+        right: 0,
+        height: 215,
+        zIndex: 30,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
+      {/* Badge Kategori Atas */}
+      <div
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 10,
+          padding: '7px 22px',
+          borderRadius: 999,
+          background: MOHEF_DARK,
+          boxShadow: '0 8px 20px rgba(10, 42, 53, 0.24)',
+          fontFamily: JAKARTA,
+          fontSize: 16,
+          fontWeight: 800,
+          letterSpacing: '0.07em',
+          color: '#FFFFFF',
+          opacity: badgeIn,
+          transform: `translateY(${(1 - badgeIn) * -14}px) scale(${0.92 + badgeIn * 0.08})`,
+        }}
+      >
+        <span
+          style={{
+            width: 9,
+            height: 9,
+            borderRadius: 999,
+            background: EMERALD,
+            boxShadow: '0 0 0 3px rgba(16, 185, 129, 0.3)',
+            flexShrink: 0,
+          }}
+        />
+        <span>
+          STUDI KASUS 01 <span style={{ color: '#6EE7B7' }}>• DESAIN RUANG & INFRASTRUKTUR TOKO</span>
+        </span>
+      </div>
+
+      {/* Banner Utama Miring Tegas (-1.5deg) */}
+      <div
+        style={{
+          marginTop: 12,
+          padding: '10px 30px',
+          background: MOHEF_BLUE,
+          border: `2px solid ${MOHEF_DARK}`,
+          boxShadow: '0 14px 32px rgba(10, 42, 53, 0.34), 0 4px 0 #0A2A35',
+          transform: `rotate(-1.5deg) scale(${0.86 + bannerIn * 0.14})`,
+          opacity: bannerIn,
+        }}
+      >
+        <div
+          style={{
+            fontFamily: ANTON,
+            fontSize: 52,
+            lineHeight: 1.04,
+            color: '#FFFFFF',
+            letterSpacing: '0.015em',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          DARI RUANG KOSONG JADI TOKO SIAP JALAN
+        </div>
+      </div>
+
+      {/* Sub-Banner di Bawahnya (jarak aman tidak bertumpuk) */}
+      <div
+        style={{
+          marginTop: 14,
+          width: 940,
+          padding: '9px 24px',
+          borderRadius: 14,
+          background: '#FFFFFF',
+          border: `2px solid ${EMERALD}`,
+          boxShadow: '0 10px 24px rgba(10, 42, 53, 0.14)',
+          textAlign: 'center',
+          fontFamily: JAKARTA,
+          fontSize: 20,
+          fontWeight: 800,
+          lineHeight: 1.25,
+          color: INK,
+          opacity: subIn,
+          transform: `translateY(${(1 - subIn) * 18}px)`,
+        }}
+      >
+        Kolaborasi Arsitek &amp; Teknisi <span style={{ color: MOHEF_BLUE }}>•</span> Layout Rak, Listrik, Air, Kasir POS, CCTV &amp; Wi-Fi AP
+      </div>
+    </div>
+  );
+};
+
+// ============================================================================
+// SCENE 2 — STUDI KASUS RUANG TOKO & INFRASTRUKTUR DARI NOL
+// ============================================================================
+export const Scene2Services: React.FC<{ withBgm?: boolean }> = ({ withBgm = true }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-
-  // Seamless continuation from Scene 1 pre-scroll (-260 -> -1180 in 60 frames)
-  const pageScrollY = interpolate(frame, [0, 62], [-260, -1180], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: Easing.bezier(0.22, 1, 0.36, 1),
-  });
-
-  const hoverPilar1Left = frame >= PILAR1_HOVER && frame < PILAR2_HOVER - 15;
-  const hoverPilar2Right = frame >= PILAR2_HOVER && frame < PILAR3_HOVER - 15;
-  const hoverPilar3 = frame >= PILAR3_HOVER;
-
-  const card1Lift = spring({
-    frame: hoverPilar1Left ? frame - PILAR1_HOVER : 0,
-    fps,
-    config: { damping: 16, stiffness: 160, mass: 0.6 },
-  });
-
-  const card2RightLift = spring({
-    frame: hoverPilar2Right ? frame - PILAR2_HOVER : 0,
-    fps,
-    config: { damping: 16, stiffness: 160, mass: 0.6 },
-  });
-
-  const card3Lift = spring({
-    frame: hoverPilar3 ? frame - PILAR3_HOVER : 0,
-    fps,
-    config: { damping: 16, stiffness: 160, mass: 0.6 },
-  });
 
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "#040812",
-        fontFamily:
-          "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-        overflow: "hidden",
+        background: 'linear-gradient(180deg, #CFE8FB 0%, #E8F3FB 38%, #FBF3E8 72%, #F6E9D7 100%)',
+        overflow: 'hidden',
       }}
     >
-      {/* Clean Studio WAV SFX */}
-      <SfxCue frame={2} sfx="transition-scroll" volume={0.42} />
-      <SfxCue frame={6} sfx="pop-in" volume={0.36} />
-      <SfxCue frame={PILAR1_HOVER} sfx="hover-rollover" volume={0.25} />
-      <SfxCue frame={PILAR1_CLICK} sfx="click-soft" volume={0.5} />
-      <SfxCue frame={PILAR1_CLICK + 2} sfx="pop-plop" volume={0.38} />
-      <SfxCue frame={168} sfx="transition-whoosh-soft" volume={0.32} />
-      <SfxCue frame={PILAR2_HOVER} sfx="hover-rollover" volume={0.25} />
-      <SfxCue frame={PILAR2_CLICK} sfx="click-soft" volume={0.5} />
-      <SfxCue frame={PILAR2_CLICK + 2} sfx="pop-plop" volume={0.38} />
-      <SfxCue frame={275} sfx="transition-whoosh-soft" volume={0.32} />
-      <SfxCue frame={PILAR3_HOVER} sfx="hover-rollover" volume={0.25} />
-      <SfxCue frame={PILAR3_CLICK} sfx="click-soft" volume={0.5} />
-      <SfxCue frame={PILAR3_CLICK + 2} sfx="pop-plop" volume={0.38} />
+      {/* Audio & SFX Presisi (Tanpa Voiceover) */}
+      {withBgm && <Audio src={staticFile('audio/songs/B25-apple-keynote-pluck.wav')} volume={0.5} loop />}
+      <SfxCue frame={8} sfx="transition-whoosh-soft" volume={0.55} />
+      <SfxCue frame={35} sfx="pop-in" volume={0.55} />
+      <SfxCue frame={85} sfx="toggle-on" volume={0.55} />
+      <SfxCue frame={135} sfx="confirm-chime" volume={0.5} />
 
-      {/* Ambient top glow */}
+      {/* Awan lembut latar belakang */}
       <div
         style={{
-          position: "absolute",
-          top: -180,
-          left: "50%",
-          width: 900,
-          height: 900,
-          transform: "translateX(-50%)",
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(59,130,246,0.18) 0%, rgba(6,182,212,0.06) 45%, transparent 70%)",
-          pointerEvents: "none",
+          position: 'absolute',
+          top: 65 + Math.sin(frame / 42) * 5,
+          left: -90 + frame * 0.22,
+          width: 500,
+          height: 150,
+          borderRadius: 999,
+          background: 'rgba(255,255,255,0.72)',
+          filter: 'blur(28px)',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: 390,
+          right: -130 + frame * 0.16,
+          width: 440,
+          height: 135,
+          borderRadius: 999,
+          background: 'rgba(255,255,255,0.58)',
+          filter: 'blur(30px)',
         }}
       />
 
-      {/* Floating Context Pill */}
-      <FloatingContextPill
-        text="💡 3 Pilar Layanan & Transparansi Harga Referensi"
-        startFrame={4}
+      {/* Zona Tengah (Y: 320px s/d 1110px — Panggung 3D Close-Up Ruangan 1) */}
+      <MohefTechHub3D
+        cameraStage="room1-infra"
+        fromStage="overview"
+        transitionStart={0}
+        transitionDuration={45}
+        frame={frame}
+        width={1080}
+        height={1920}
+        focusY={775}
+        style={{ position: 'absolute', top: 0, left: 0, zIndex: 10 }}
       />
 
-      {/* Dynamic Camera Rig: Continuous motion across all 3 pillars */}
-      <CameraRig
-        keyframes={[
-          { frame: 0, scale: 1.06, x: 0, y: -15, rotateX: 0.5, rotateY: 0 },
-          { frame: 55, scale: 1.02, x: 0, y: 0, rotateX: 0, rotateY: 0 },
-          // Focus Pillar 1 (Left: Harga Pasti)
-          {
-            frame: PILAR1_HOVER,
-            scale: 1.24,
-            x: 135,
-            y: 165,
-            rotateX: 1.5,
-            rotateY: -1.8,
-          },
-          {
-            frame: PILAR1_CLICK + 25,
-            scale: 1.24,
-            x: 135,
-            y: 165,
-            rotateX: 1.5,
-            rotateY: -1.8,
-          },
-          // Pan right to Pillar 2 (Right: Mulai Dari)
-          {
-            frame: PILAR2_HOVER,
-            scale: 1.24,
-            x: -135,
-            y: -20,
-            rotateX: 1.5,
-            rotateY: 1.8,
-          },
-          {
-            frame: PILAR2_CLICK + 25,
-            scale: 1.24,
-            x: -135,
-            y: -20,
-            rotateX: 1.5,
-            rotateY: 1.8,
-          },
-          // Pan down-left to Pillar 3 (Left Bottom: Konsultasi)
-          {
-            frame: PILAR3_HOVER,
-            scale: 1.2,
-            x: 115,
-            y: -185,
-            rotateX: 1.2,
-            rotateY: -1.5,
-          },
-          {
-            frame: PILAR3_CLICK + 25,
-            scale: 1.2,
-            x: 115,
-            y: -185,
-            rotateX: 1.2,
-            rotateY: -1.5,
-          },
-          // Pull back & glide toward Search Bar at top-right for Scene 3
-          {
-            frame: 450,
-            scale: 1.12,
-            x: -55,
-            y: 110,
-            rotateX: 0.8,
-            rotateY: 0.8,
-          },
-        ]}
+      {/* Zona Atas */}
+      <CaseStudyHeader frame={frame} fps={fps} />
+
+      {/* Zona Bawah (Y: 1125px s/d 1620px — Bento Grid Studi Kasus, Safe Zone >300px) */}
+      <div
+        className="mohef-bento-grid"
+        style={{
+          position: 'absolute',
+          top: 1125,
+          left: 50,
+          width: 980,
+          height: 495,
+          zIndex: 30,
+        }}
       >
-        <div
-          style={{
-            position: "absolute",
-            left: 56,
-            top: 210,
-            width: 968,
-            height: 1560,
-          }}
-        >
-          <DeviceFrame
-            variant="browser"
-            url="https://moheftech.com/#layanan"
-            style={{ width: "100%", height: "100%" }}
-          >
-            <div
-              style={{
-                position: "relative",
-                width: "100%",
-                height: "100%",
-                backgroundColor: "#060c18",
-                color: "#e8edf5",
-                display: "flex",
-                flexDirection: "column",
-                overflow: "hidden",
-              }}
-            >
-              {/* Subtle Tech Radial Mesh */}
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  backgroundImage:
-                    "radial-gradient(circle at 50% 24%, rgba(59, 130, 246, 0.15), transparent 55%), radial-gradient(circle at 80% 75%, rgba(6, 182, 212, 0.12), transparent 45%)",
-                  pointerEvents: "none",
-                }}
-              />
+        <style>{`
+          .mohef-bento-grid > div > div > div {
+            position: relative !important;
+            justify-content: flex-start !important;
+            gap: 10px !important;
+            padding: 20px 24px 24px !important;
+            border-radius: 22px !important;
+          }
+          .mohef-bento-grid > div > div > div:nth-child(1) {
+            border: 2px solid #10B981 !important;
+            box-shadow: 0 14px 30px rgba(16, 185, 129, 0.16) !important;
+          }
+          .mohef-bento-grid > div > div > div:nth-child(2) {
+            border: 2px solid #F97316 !important;
+            box-shadow: 0 14px 30px rgba(249, 115, 22, 0.16) !important;
+          }
+          .mohef-bento-grid > div > div > div:nth-child(3) {
+            border: 2px solid #0056D2 !important;
+            box-shadow: 0 14px 30px rgba(0, 86, 210, 0.16) !important;
+          }
+          .mohef-bento-grid > div > div > div::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 7px;
+          }
+          .mohef-bento-grid > div > div > div:nth-child(1)::after { background: #10B981; }
+          .mohef-bento-grid > div > div > div:nth-child(2)::after { background: #F97316; }
+          .mohef-bento-grid > div > div > div:nth-child(3)::after { background: #0056D2; }
 
-              {/* ============ STICKY NAVBAR ============ */}
-              <header
-                style={{
-                  position: "relative",
-                  zIndex: 20,
-                  height: 84,
-                  flexShrink: 0,
-                  padding: "0 40px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  backgroundColor: "rgba(6, 12, 24, 0.92)",
-                  borderBottom: "1px solid rgba(59, 130, 246, 0.18)",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                  <div
-                    style={{
-                      width: 42,
-                      height: 42,
-                      borderRadius: 12,
-                      background: "linear-gradient(135deg, #3b82f6, #06b6d4)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      boxShadow: "0 0 20px rgba(59, 130, 246, 0.45)",
-                      fontWeight: 800,
-                      fontSize: 20,
-                      color: "#ffffff",
-                    }}
-                  >
-                    M
-                  </div>
-                  <span
-                    style={{
-                      fontWeight: 800,
-                      fontSize: 22,
-                      background: "linear-gradient(135deg, #3b82f6, #06b6d4)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      letterSpacing: "-0.02em",
-                    }}
-                  >
-                    Mohef Tech
-                  </span>
-                </div>
+          .mohef-bento-grid > div > div > div > div:first-child > span {
+            font-family: ${JAKARTA} !important;
+            font-size: 15px !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.08em !important;
+            opacity: 1 !important;
+          }
+          .mohef-bento-grid > div > div > div:nth-child(1) > div:first-child > span { color: #059669 !important; }
+          .mohef-bento-grid > div > div > div:nth-child(2) > div:first-child > span { color: #EA580C !important; }
+          .mohef-bento-grid > div > div > div:nth-child(3) > div:first-child > span { color: #0056D2 !important; }
 
-                <nav style={{ display: "flex", alignItems: "center", gap: 32 }}>
-                  <span
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 500,
-                      color: frame < 30 ? "#e8edf5" : "#94a3b8",
-                    }}
-                  >
-                    Home
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 600,
-                      color: frame >= 30 ? "#e8edf5" : "#94a3b8",
-                      paddingBottom: 4,
-                      borderBottom:
-                        frame >= 30
-                          ? "2px solid #3b82f6"
-                          : "2px solid transparent",
-                    }}
-                  >
-                    Layanan
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 500,
-                      color: "#94a3b8",
-                    }}
-                  >
-                    Tentang
-                  </span>
-                  <span
-                    style={{
-                      padding: "10px 24px",
-                      borderRadius: 9999,
-                      background: "linear-gradient(135deg, #3b82f6, #06b6d4)",
-                      color: "#ffffff",
-                      fontSize: 15,
-                      fontWeight: 600,
-                    }}
-                  >
-                    Kontak
-                  </span>
-                </nav>
-              </header>
-
-              {/* ============ SCROLLING PAGE CONTAINER ============ */}
-              <div
-                style={{
-                  position: "relative",
-                  flex: 1,
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  style={{
-                    transform: `translate3d(0, ${pageScrollY}px, 0)`,
-                    willChange: "transform",
-                  }}
-                >
-                  {/* --- TOP SECTION: HOME (visible at frame 0 before scroll completes) --- */}
-                  <div
-                    style={{
-                      height: 1180,
-                      padding: "56px 48px 36px",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      textAlign: "center",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 10,
-                        height: 42,
-                        padding: "0 22px",
-                        borderRadius: 9999,
-                        backgroundColor: "rgba(59, 130, 246, 0.12)",
-                        border: "1px solid rgba(59, 130, 246, 0.35)",
-                        color: "#60a5fa",
-                        fontSize: 14,
-                        fontWeight: 600,
-                        marginBottom: 28,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: "50%",
-                          backgroundColor: "#06b6d4",
-                        }}
-                      />
-                      IT Solutions Partner
-                    </div>
-
-                    <div
-                      style={{
-                        width: 104,
-                        height: 104,
-                        borderRadius: 26,
-                        background:
-                          "linear-gradient(135deg, rgba(59, 130, 246, 0.22), rgba(6, 182, 212, 0.18))",
-                        border: "1.5px solid rgba(59, 130, 246, 0.45)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginBottom: 28,
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: 72,
-                          height: 72,
-                          borderRadius: 18,
-                          background:
-                            "linear-gradient(135deg, #3b82f6, #06b6d4)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 38,
-                          fontWeight: 900,
-                          color: "#ffffff",
-                        }}
-                      >
-                        MT
-                      </div>
-                    </div>
-
-                    <h1
-                      style={{
-                        margin: 0,
-                        fontSize: 72,
-                        fontWeight: 800,
-                        lineHeight: 1.1,
-                        marginBottom: 16,
-                        background:
-                          "linear-gradient(135deg, #3b82f6 0%, #06b6d4 55%, #60a5fa 100%)",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                      }}
-                    >
-                      Mohef Tech
-                    </h1>
-
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: 30,
-                        fontWeight: 700,
-                        color: "#e8edf5",
-                        marginBottom: 20,
-                      }}
-                    >
-                      Solusi IT terbaik untuk Anda
-                    </p>
-
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: 20,
-                        color: "#94a3b8",
-                        maxWidth: 760,
-                        lineHeight: 1.65,
-                        marginBottom: 40,
-                      }}
-                    >
-                      Mohef Tech menyediakan berbagai solusi IT terpadu yang
-                      mencakup kebutuhan hardware dan software: mulai dari
-                      maintenance, troubleshooting, upgrade perangkat, hingga
-                      pengembangan solusi software bisnis.
-                    </p>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 20,
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: 268,
-                          height: 64,
-                          borderRadius: 9999,
-                          background:
-                            "linear-gradient(135deg, #2563eb, #0891b2)",
-                          color: "#ffffff",
-                          fontSize: 19,
-                          fontWeight: 700,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 10,
-                          border: "2px solid #67e8f9",
-                        }}
-                      >
-                        <span>⚡</span>
-                        <span>Lihat Layanan</span>
-                      </div>
-                      <div
-                        style={{
-                          width: 268,
-                          height: 64,
-                          borderRadius: 9999,
-                          background:
-                            "linear-gradient(135deg, #25d366, #128c7e)",
-                          color: "#ffffff",
-                          fontSize: 19,
-                          fontWeight: 700,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 10,
-                        }}
-                      >
-                        <span>💬</span>
-                        <span>Konsultasi Gratis</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* --- TARGET SECTION: LAYANAN (3 PILAR & TRANSPARANSI HARGA) --- */}
-                  <section
-                    style={{
-                      padding: "32px 42px 48px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 24,
-                    }}
-                  >
-                    {/* Section Header + Search Bar Row */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "flex-end",
-                        justifyContent: "space-between",
-                        borderBottom: "1px solid rgba(59, 130, 246, 0.14)",
-                        paddingBottom: 20,
-                      }}
-                    >
-                      <div>
-                        <div
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 8,
-                            padding: "6px 16px",
-                            borderRadius: 9999,
-                            backgroundColor: "rgba(59, 130, 246, 0.12)",
-                            border: "1px solid rgba(59, 130, 246, 0.3)",
-                            color: "#60a5fa",
-                            fontSize: 12,
-                            fontWeight: 700,
-                            letterSpacing: "0.06em",
-                            textTransform: "uppercase",
-                            marginBottom: 10,
-                          }}
-                        >
-                          <span>🛠</span>
-                          <span>Layanan Kami</span>
-                        </div>
-                        <h2
-                          style={{
-                            margin: 0,
-                            fontSize: 34,
-                            fontWeight: 800,
-                            color: "#e8edf5",
-                            letterSpacing: "-0.02em",
-                          }}
-                        >
-                          Solusi Digital{" "}
-                          <span
-                            style={{
-                              background:
-                                "linear-gradient(135deg, #3b82f6, #06b6d4)",
-                              WebkitBackgroundClip: "text",
-                              WebkitTextFillColor: "transparent",
-                            }}
-                          >
-                            Terpercaya
-                          </span>
-                        </h2>
-                      </div>
-
-                      {/* Search Box Preview */}
-                      <div
-                        style={{
-                          width: 340,
-                          height: 46,
-                          borderRadius: 9999,
-                          backgroundColor: "rgba(15, 34, 64, 0.85)",
-                          border: "1px solid rgba(59, 130, 246, 0.25)",
-                          padding: "0 18px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          color: "#64748b",
-                          fontSize: 14,
-                        }}
-                      >
-                        <span>Cari layanan yang Anda butuhkan...</span>
-                        <span style={{ color: "#60a5fa" }}>🔍</span>
-                      </div>
-                    </div>
-
-                    {/* ==================== PILAR 1: PERANGKAT & JARINGAN ==================== */}
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 12,
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          alignSelf: "flex-start",
-                          gap: 8,
-                          padding: "7px 18px",
-                          borderRadius: 9999,
-                          background:
-                            "linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(6, 182, 212, 0.12))",
-                          border: "1px solid rgba(59, 130, 246, 0.35)",
-                          color: "#60a5fa",
-                          fontSize: 13,
-                          fontWeight: 700,
-                          letterSpacing: "0.06em",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        <span>🖥️</span>
-                        <span>Pilar 1 — Perangkat & Jaringan</span>
-                      </div>
-
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "1.25fr 1fr",
-                          gap: 18,
-                        }}
-                      >
-                        {/* Featured Left Card: Upgrade & Ganti RAM 8GB */}
-                        <div
-                          style={{
-                            padding: "22px 24px",
-                            borderRadius: 18,
-                            backgroundColor: hoverPilar1Left
-                              ? "rgba(20, 50, 92, 0.94)"
-                              : "rgba(15, 34, 64, 0.75)",
-                            border: hoverPilar1Left
-                              ? "2px solid rgba(56, 189, 248, 0.9)"
-                              : "1px solid rgba(59, 130, 246, 0.22)",
-                            boxShadow: hoverPilar1Left
-                              ? "0 20px 44px rgba(0, 0, 0, 0.55), 0 0 32px rgba(59, 130, 246, 0.35)"
-                              : "0 8px 24px rgba(0, 0, 0, 0.25)",
-                            transform: `translateY(${interpolate(card1Lift, [0, 1], [0, -8])}px) scale(${interpolate(card1Lift, [0, 1], [1, 1.02])})`,
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                            gap: 12,
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "flex-start",
-                              justifyContent: "space-between",
-                              gap: 12,
-                            }}
-                          >
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 14,
-                              }}
-                            >
-                              <div
-                                style={{
-                                  width: 46,
-                                  height: 46,
-                                  borderRadius: 12,
-                                  background:
-                                    "linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(6, 182, 212, 0.18))",
-                                  border: "1px solid rgba(16, 185, 129, 0.4)",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  fontSize: 22,
-                                }}
-                              >
-                                ⚡
-                              </div>
-                              <div>
-                                <h3
-                                  style={{
-                                    margin: 0,
-                                    fontSize: 20,
-                                    fontWeight: 800,
-                                    color: "#e8edf5",
-                                  }}
-                                >
-                                  Upgrade & Ganti RAM 8GB
-                                </h3>
-                                <p
-                                  style={{
-                                    margin: "4px 0 0",
-                                    fontSize: 14,
-                                    color: "#94a3b8",
-                                    lineHeight: 1.45,
-                                  }}
-                                >
-                                  Termasuk pemasangan modul RAM laptop/PC,
-                                  pembersihan slot & uji stabilitas sistem.
-                                </p>
-                              </div>
-                            </div>
-
-                            <span
-                              style={{
-                                padding: "5px 12px",
-                                borderRadius: 9999,
-                                backgroundColor: "rgba(16, 185, 129, 0.16)",
-                                border: "1px solid rgba(52, 211, 153, 0.45)",
-                                color: "#34d399",
-                                fontSize: 11,
-                                fontWeight: 800,
-                                letterSpacing: "0.05em",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              HARGA PASTI
-                            </span>
-                          </div>
-
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              paddingTop: 10,
-                              borderTop: "1px solid rgba(59, 130, 246, 0.15)",
-                            }}
-                          >
-                            <span
-                              style={{
-                                fontSize: 24,
-                                fontWeight: 800,
-                                background:
-                                  "linear-gradient(135deg, #34d399, #06b6d4)",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                              }}
-                            >
-                              Rp350.000
-                            </span>
-
-                            <span
-                              style={{
-                                fontSize: 13,
-                                fontWeight: 700,
-                                color: hoverPilar1Left ? "#ffffff" : "#60a5fa",
-                                padding: "6px 14px",
-                                borderRadius: 9999,
-                                background: hoverPilar1Left
-                                  ? "linear-gradient(135deg, #3b82f6, #06b6d4)"
-                                  : "rgba(59, 130, 246, 0.12)",
-                                border: "1px solid rgba(59, 130, 246, 0.35)",
-                              }}
-                            >
-                              Detail Harga →
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Secondary Right Card in Pillar 1 */}
-                        <div
-                          style={{
-                            padding: "22px 22px",
-                            borderRadius: 18,
-                            backgroundColor: "rgba(15, 34, 64, 0.6)",
-                            border: "1px solid rgba(59, 130, 246, 0.16)",
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <div>
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                marginBottom: 8,
-                              }}
-                            >
-                              <span style={{ fontSize: 20 }}>🌐</span>
-                              <span
-                                style={{
-                                  fontSize: 11,
-                                  fontWeight: 700,
-                                  color: "#38bdf8",
-                                  padding: "3px 10px",
-                                  borderRadius: 9999,
-                                  backgroundColor: "rgba(56, 189, 248, 0.14)",
-                                }}
-                              >
-                                PER TITIK
-                              </span>
-                            </div>
-                            <h4
-                              style={{
-                                margin: "0 0 6px",
-                                fontSize: 17,
-                                fontWeight: 700,
-                                color: "#e8edf5",
-                              }}
-                            >
-                              Instalasi LAN & Mikrotik
-                            </h4>
-                            <p
-                              style={{
-                                margin: 0,
-                                fontSize: 13,
-                                color: "#94a3b8",
-                                lineHeight: 1.5,
-                              }}
-                            >
-                              Penarikan kabel LAN & konfigurasi manajemen
-                              bandwidth kantor.
-                            </p>
-                          </div>
-                          <div
-                            style={{
-                              fontSize: 19,
-                              fontWeight: 800,
-                              color: "#38bdf8",
-                              marginTop: 12,
-                            }}
-                          >
-                            Rp250.000 / titik
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* ==================== PILAR 2: APLIKASI CUSTOM (SOROT KANAN) ==================== */}
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 12,
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          alignSelf: "flex-start",
-                          gap: 8,
-                          padding: "7px 18px",
-                          borderRadius: 9999,
-                          background:
-                            "linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(6, 182, 212, 0.12))",
-                          border: "1px solid rgba(59, 130, 246, 0.35)",
-                          color: "#60a5fa",
-                          fontSize: 13,
-                          fontWeight: 700,
-                          letterSpacing: "0.06em",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        <span>💻</span>
-                        <span>Pilar 2 — Aplikasi Custom</span>
-                      </div>
-
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "1fr 1.25fr",
-                          gap: 18,
-                        }}
-                      >
-                        {/* Secondary Left Card in Pillar 2 */}
-                        <div
-                          style={{
-                            padding: "22px 22px",
-                            borderRadius: 18,
-                            backgroundColor: "rgba(15, 34, 64, 0.6)",
-                            border: "1px solid rgba(59, 130, 246, 0.16)",
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <div>
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                marginBottom: 8,
-                              }}
-                            >
-                              <span style={{ fontSize: 20 }}>📱</span>
-                              <span
-                                style={{
-                                  fontSize: 11,
-                                  fontWeight: 700,
-                                  color: "#60a5fa",
-                                  padding: "3px 10px",
-                                  borderRadius: 9999,
-                                  backgroundColor: "rgba(59, 130, 246, 0.14)",
-                                }}
-                              >
-                                MULAI DARI
-                              </span>
-                            </div>
-                            <h4
-                              style={{
-                                margin: "0 0 6px",
-                                fontSize: 17,
-                                fontWeight: 700,
-                                color: "#e8edf5",
-                              }}
-                            >
-                              Aplikasi Katalog & Company Profile
-                            </h4>
-                            <p
-                              style={{
-                                margin: 0,
-                                fontSize: 13,
-                                color: "#94a3b8",
-                                lineHeight: 1.5,
-                              }}
-                            >
-                              Website profil perusahaan modern responsif &
-                              optimasi SEO dasar.
-                            </p>
-                          </div>
-                          <div
-                            style={{
-                              fontSize: 19,
-                              fontWeight: 800,
-                              color: "#38bdf8",
-                              marginTop: 12,
-                            }}
-                          >
-                            Mulai dari Rp1.500.000
-                          </div>
-                        </div>
-
-                        {/* Featured Right Card: Pengembangan Sistem & Web App */}
-                        <div
-                          style={{
-                            padding: "22px 24px",
-                            borderRadius: 18,
-                            backgroundColor: hoverPilar2Right
-                              ? "rgba(20, 50, 92, 0.94)"
-                              : "rgba(15, 34, 64, 0.78)",
-                            border: hoverPilar2Right
-                              ? "2px solid rgba(6, 182, 212, 0.9)"
-                              : "1px solid rgba(59, 130, 246, 0.25)",
-                            boxShadow: hoverPilar2Right
-                              ? "0 20px 44px rgba(0, 0, 0, 0.55), 0 0 34px rgba(6, 182, 212, 0.35)"
-                              : "0 8px 24px rgba(0, 0, 0, 0.25)",
-                            transform: `translateY(${interpolate(card2RightLift, [0, 1], [0, -8])}px) scale(${interpolate(card2RightLift, [0, 1], [1, 1.02])})`,
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                            gap: 12,
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "flex-start",
-                              justifyContent: "space-between",
-                              gap: 12,
-                            }}
-                          >
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 14,
-                              }}
-                            >
-                              <div
-                                style={{
-                                  width: 46,
-                                  height: 46,
-                                  borderRadius: 12,
-                                  background:
-                                    "linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(6, 182, 212, 0.2))",
-                                  border: "1px solid rgba(59, 130, 246, 0.45)",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  fontSize: 22,
-                                }}
-                              >
-                                🚀
-                              </div>
-                              <div>
-                                <h3
-                                  style={{
-                                    margin: 0,
-                                    fontSize: 20,
-                                    fontWeight: 800,
-                                    color: "#e8edf5",
-                                  }}
-                                >
-                                  Pengembangan Sistem & Web App
-                                </h3>
-                                <p
-                                  style={{
-                                    margin: "4px 0 0",
-                                    fontSize: 14,
-                                    color: "#94a3b8",
-                                    lineHeight: 1.45,
-                                  }}
-                                >
-                                  Pembuatan aplikasi web custom, dashboard
-                                  operasional & integrasi database bisnis.
-                                </p>
-                              </div>
-                            </div>
-
-                            <span
-                              style={{
-                                padding: "5px 12px",
-                                borderRadius: 9999,
-                                backgroundColor: "rgba(59, 130, 246, 0.18)",
-                                border: "1px solid rgba(59, 130, 246, 0.45)",
-                                color: "#60a5fa",
-                                fontSize: 11,
-                                fontWeight: 800,
-                                letterSpacing: "0.05em",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              MULAI DARI
-                            </span>
-                          </div>
-
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              paddingTop: 10,
-                              borderTop: "1px solid rgba(59, 130, 246, 0.15)",
-                            }}
-                          >
-                            <span
-                              style={{
-                                fontSize: 23,
-                                fontWeight: 800,
-                                background:
-                                  "linear-gradient(135deg, #3b82f6, #06b6d4)",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                              }}
-                            >
-                              Mulai dari Rp3.000.000
-                            </span>
-
-                            <span
-                              style={{
-                                fontSize: 13,
-                                fontWeight: 700,
-                                color: hoverPilar2Right ? "#ffffff" : "#60a5fa",
-                                padding: "7px 16px",
-                                borderRadius: 9999,
-                                background: hoverPilar2Right
-                                  ? "linear-gradient(135deg, #3b82f6, #06b6d4)"
-                                  : "rgba(59, 130, 246, 0.12)",
-                                border: "1px solid rgba(59, 130, 246, 0.45)",
-                              }}
-                            >
-                              Lihat Detail →
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* ==================== PILAR 3: KONSULTASI & MAINTENANCE ==================== */}
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 12,
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          alignSelf: "flex-start",
-                          gap: 8,
-                          padding: "7px 18px",
-                          borderRadius: 9999,
-                          background:
-                            "linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(6, 182, 212, 0.12))",
-                          border: "1px solid rgba(59, 130, 246, 0.35)",
-                          color: "#60a5fa",
-                          fontSize: 13,
-                          fontWeight: 700,
-                          letterSpacing: "0.06em",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        <span>🛡️</span>
-                        <span>Pilar 3 — Konsultasi & Maintenance</span>
-                      </div>
-
-                      <div
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "1.25fr 1fr",
-                          gap: 18,
-                        }}
-                      >
-                        {/* Featured Card: Audit Sistem & Troubleshooting IT */}
-                        <div
-                          style={{
-                            padding: "22px 24px",
-                            borderRadius: 18,
-                            backgroundColor: hoverPilar3
-                              ? "rgba(20, 50, 92, 0.94)"
-                              : "rgba(15, 34, 64, 0.75)",
-                            border: hoverPilar3
-                              ? "2px solid rgba(167, 139, 250, 0.9)"
-                              : "1px solid rgba(59, 130, 246, 0.22)",
-                            boxShadow: hoverPilar3
-                              ? "0 20px 44px rgba(0, 0, 0, 0.55), 0 0 32px rgba(139, 92, 246, 0.32)"
-                              : "0 8px 24px rgba(0, 0, 0, 0.25)",
-                            transform: `translateY(${interpolate(card3Lift, [0, 1], [0, -8])}px) scale(${interpolate(card3Lift, [0, 1], [1, 1.02])})`,
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                            gap: 12,
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "flex-start",
-                              justifyContent: "space-between",
-                              gap: 12,
-                            }}
-                          >
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 14,
-                              }}
-                            >
-                              <div
-                                style={{
-                                  width: 46,
-                                  height: 46,
-                                  borderRadius: 12,
-                                  background:
-                                    "linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(59, 130, 246, 0.2))",
-                                  border: "1px solid rgba(139, 92, 246, 0.45)",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  fontSize: 22,
-                                }}
-                              >
-                                🔧
-                              </div>
-                              <div>
-                                <h3
-                                  style={{
-                                    margin: 0,
-                                    fontSize: 20,
-                                    fontWeight: 800,
-                                    color: "#e8edf5",
-                                  }}
-                                >
-                                  Audit Sistem & Troubleshooting IT
-                                </h3>
-                                <p
-                                  style={{
-                                    margin: "4px 0 0",
-                                    fontSize: 14,
-                                    color: "#94a3b8",
-                                  }}
-                                >
-                                  Evaluasi menyeluruh infrastruktur IT,
-                                  penanganan kendala teknis & kontrak
-                                  maintenance rutin.
-                                </p>
-                              </div>
-                            </div>
-
-                            <span
-                              style={{
-                                padding: "5px 12px",
-                                borderRadius: 9999,
-                                backgroundColor: "rgba(139, 92, 246, 0.18)",
-                                border: "1px solid rgba(167, 139, 250, 0.5)",
-                                color: "#c4b5fd",
-                                fontSize: 11,
-                                fontWeight: 800,
-                                letterSpacing: "0.05em",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              KONSULTASI
-                            </span>
-                          </div>
-
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              paddingTop: 10,
-                              borderTop: "1px solid rgba(59, 130, 246, 0.15)",
-                            }}
-                          >
-                            <span
-                              style={{
-                                fontSize: 22,
-                                fontWeight: 800,
-                                background:
-                                  "linear-gradient(135deg, #a78bfa, #38bdf8)",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                              }}
-                            >
-                              Konsultasi / Custom
-                            </span>
-
-                            <span
-                              style={{
-                                fontSize: 13,
-                                fontWeight: 700,
-                                color: hoverPilar3 ? "#ffffff" : "#c4b5fd",
-                                padding: "6px 14px",
-                                borderRadius: 9999,
-                                background: hoverPilar3
-                                  ? "linear-gradient(135deg, #8b5cf6, #3b82f6)"
-                                  : "transparent",
-                                border: "1px solid rgba(167, 139, 250, 0.4)",
-                              }}
-                            >
-                              Diskusi Kebutuhan →
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Secondary Card in Pillar 3 */}
-                        <div
-                          style={{
-                            padding: "22px 22px",
-                            borderRadius: 18,
-                            backgroundColor: "rgba(15, 34, 64, 0.6)",
-                            border: "1px solid rgba(59, 130, 246, 0.16)",
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <div>
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                marginBottom: 8,
-                              }}
-                            >
-                              <span style={{ fontSize: 20 }}>🤝</span>
-                              <span
-                                style={{
-                                  fontSize: 11,
-                                  fontWeight: 700,
-                                  color: "#c4b5fd",
-                                  padding: "3px 10px",
-                                  borderRadius: 9999,
-                                  backgroundColor: "rgba(139, 92, 246, 0.15)",
-                                }}
-                              >
-                                KONSULTASI
-                              </span>
-                            </div>
-                            <h4
-                              style={{
-                                margin: "0 0 6px",
-                                fontSize: 17,
-                                fontWeight: 700,
-                                color: "#e8edf5",
-                              }}
-                            >
-                              IT Support & Retainer Bulanan
-                            </h4>
-                            <p
-                              style={{
-                                margin: 0,
-                                fontSize: 13,
-                                color: "#94a3b8",
-                                lineHeight: 1.5,
-                              }}
-                            >
-                              Pendampingan teknis berkala untuk operasional
-                              kantor bebas hambatan.
-                            </p>
-                          </div>
-                          <div
-                            style={{
-                              fontSize: 18,
-                              fontWeight: 800,
-                              color: "#a78bfa",
-                              marginTop: 12,
-                            }}
-                          >
-                            Konsultasi / Custom
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Footnote Disclaimer */}
-                    <div
-                      style={{
-                        marginTop: 6,
-                        padding: "14px 20px",
-                        borderRadius: 12,
-                        backgroundColor: "rgba(15, 34, 64, 0.45)",
-                        border: "1px solid rgba(59, 130, 246, 0.14)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: 14,
-                          fontStyle: "italic",
-                          color: "#94a3b8",
-                        }}
-                      >
-                        *Harga dapat menyesuaikan kondisi dan kebutuhan.
-                      </span>
-                      <span
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 600,
-                          color: "#60a5fa",
-                        }}
-                      >
-                        ✓ Transparan & Terukur
-                      </span>
-                    </div>
-                  </section>
-                </div>
-              </div>
-            </div>
-          </DeviceFrame>
-        </div>
-
-        {/* Simulated Cursor: Exact button coordinates on each of the 3 Pillar cards */}
-        <SimulatedCursor
-          path={[
-            { frame: 0, x: 396, y: 820 },
-            { frame: 55, x: 420, y: 760 },
-            { frame: PILAR1_HOVER, x: 505, y: 722 },
-            { frame: PILAR1_CLICK, x: 505, y: 722, click: true },
-            { frame: 165, x: 505, y: 722 },
-            { frame: PILAR2_HOVER, x: 905, y: 1008 },
-            { frame: PILAR2_CLICK, x: 905, y: 1008, click: true },
-            { frame: 270, x: 905, y: 1008 },
-            { frame: PILAR3_HOVER, x: 495, y: 1296 },
-            { frame: PILAR3_CLICK, x: 495, y: 1296, click: true },
-            { frame: 380, x: 495, y: 1296 },
-            { frame: 450, x: 785, y: 434 },
-          ]}
+          .mohef-bento-grid > div > div > div > div:last-child {
+            gap: 8px !important;
+          }
+          .mohef-bento-grid > div > div > div > div:last-child > div:first-child {
+            font-family: ${JAKARTA} !important;
+            font-size: 25px !important;
+            font-weight: 800 !important;
+            line-height: 1.18 !important;
+            letter-spacing: -0.015em !important;
+            color: #1F1F1F !important;
+          }
+          .mohef-bento-grid > div > div > div > div:last-child > div:last-child {
+            font-family: ${JAKARTA} !important;
+            font-size: 19px !important;
+            font-weight: 600 !important;
+            line-height: 1.32 !important;
+            color: #555555 !important;
+            opacity: 1 !important;
+          }
+        `}</style>
+        <BentoGridReveal
+          items={BENTO_ITEMS}
+          startFrame={30}
+          waveGapFrames={24}
+          stageWidth={980}
+          stageHeight={495}
+          columns={2}
+          gapPx={18}
+          enableSfx={false}
         />
-      </CameraRig>
+      </div>
     </AbsoluteFill>
   );
 };
+
+export default Scene2Services;

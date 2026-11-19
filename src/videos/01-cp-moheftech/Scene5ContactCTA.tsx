@@ -1,653 +1,564 @@
-import React from "react";
+import React from 'react';
 import {
   AbsoluteFill,
+  Audio,
   interpolate,
   spring,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
-} from "remotion";
-import { CameraRig } from "../../engine/CameraRig";
-import { DeviceFrame } from "../../engine/DeviceFrame";
-import { SimulatedCursor } from "../../engine/SimulatedCursor";
-import { SfxCue } from "../../lib/motion-craft";
-import { FloatingContextPill } from "./FloatingContextPill";
+} from 'remotion';
+import { loadFont as loadAnton } from '@remotion/google-fonts/Anton';
+import { loadFont as loadJakarta } from '@remotion/google-fonts/PlusJakartaSans';
+import { AnimatedCursor, SfxCue } from '../../lib/motion-craft';
+import { MohefTechHub3D } from './MohefTechHub3D';
 
-const USER_MSG_FRAME = 32;
-const REPLY_MSG_FRAME = 105;
-const CTA_HOVER_FRAME = 235;
-const CTA_CLICK_FRAME = 270;
+const { fontFamily: ANTON } = loadAnton();
+const { fontFamily: JAKARTA } = loadJakarta('normal', {
+  weights: ['600', '700', '800'],
+  subsets: ['latin'],
+});
 
-export const Scene5ContactCTA: React.FC = () => {
+export const SCENE5_DURATION = 330;
+
+const INK = '#1F1F1F';
+const MUTED = '#555555';
+const MOHEF_BLUE = '#0056D2';
+const MOHEF_DARK = '#0A2A35';
+const EMERALD = '#10B981';
+const ORANGE = '#F97316';
+
+const clampOpts = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
+
+interface SyncCardDef {
+  id: string;
+  badge: string;
+  title: string;
+  desc: string;
+  startFrame: number;
+  endFrame: number;
+  accent: string;
+  badgeColor: string;
+  bg: string;
+  shadow: string;
+}
+
+const SYNC_CARDS: SyncCardDef[] = [
+  {
+    id: 'sync-r1',
+    badge: '01 • RUANG & INFRA',
+    title: 'Bangun Ruang & Infra',
+    desc: 'Layout 3D, Listrik, Air, CCTV & Wi-Fi AP',
+    startFrame: 35,
+    endFrame: 95,
+    accent: EMERALD,
+    badgeColor: '#059669',
+    bg: 'linear-gradient(180deg, #ECFDF5 0%, #D1FAE5 100%)',
+    shadow: 'rgba(16, 185, 129, 0.25)',
+  },
+  {
+    id: 'sync-r2',
+    badge: '02 • HARDWARE & PC',
+    title: 'PC, Kasir & Service',
+    desc: 'Rakit PC, Printer POS & Service Laptop',
+    startFrame: 95,
+    endFrame: 155,
+    accent: ORANGE,
+    badgeColor: '#EA580C',
+    bg: 'linear-gradient(180deg, #FFF7ED 0%, #FFEDD5 100%)',
+    shadow: 'rgba(249, 115, 22, 0.25)',
+  },
+  {
+    id: 'sync-r3',
+    badge: '03 • WEB & APLIKASI',
+    title: 'Web, POS & App Custom',
+    desc: 'Sistem Kasir, Website & Aplikasi QR',
+    startFrame: 155,
+    endFrame: 215,
+    accent: MOHEF_BLUE,
+    badgeColor: MOHEF_BLUE,
+    bg: 'linear-gradient(180deg, #EFF6FF 0%, #DBEAFE 100%)',
+    shadow: 'rgba(0, 86, 210, 0.25)',
+  },
+];
+
+// ============================================================================
+// ZONA ATAS (Y: 105px s/d 320px) — Memory Anchor untuk Semua Kalangan
+// ============================================================================
+const CtaHeader: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
+  const badgeIn = spring({ frame, fps, config: { damping: 16, stiffness: 170 } });
+  const bannerIn = spring({ frame: frame - 4, fps, config: { damping: 14, stiffness: 160, mass: 0.75 } });
+  const subIn = spring({ frame: frame - 10, fps, config: { damping: 16, stiffness: 155 } });
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: 105,
+        left: 0,
+        right: 0,
+        height: 215,
+        zIndex: 30,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
+      <div
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 10,
+          padding: '7px 22px',
+          borderRadius: 999,
+          background: MOHEF_DARK,
+          boxShadow: '0 8px 20px rgba(10, 42, 53, 0.24)',
+          fontFamily: JAKARTA,
+          fontSize: 16,
+          fontWeight: 800,
+          letterSpacing: '0.07em',
+          color: '#FFFFFF',
+          opacity: badgeIn,
+          transform: `translateY(${(1 - badgeIn) * -14}px) scale(${0.92 + badgeIn * 0.08})`,
+        }}
+      >
+        <span
+          style={{
+            width: 9,
+            height: 9,
+            borderRadius: 999,
+            background: EMERALD,
+            boxShadow: '0 0 0 3px rgba(16, 185, 129, 0.32)',
+            flexShrink: 0,
+          }}
+        />
+        <span>
+          SATU PINTU SOLUSI IT <span style={{ color: '#6EE7B7' }}>• UNTUK BISNIS &amp; PERSONAL</span>
+        </span>
+      </div>
+
+      <div
+        style={{
+          marginTop: 12,
+          padding: '10px 32px',
+          background: MOHEF_BLUE,
+          border: `2px solid ${MOHEF_DARK}`,
+          boxShadow: '0 14px 32px rgba(10, 42, 53, 0.34), 0 4px 0 #0A2A35',
+          transform: `rotate(-1.5deg) scale(${0.86 + bannerIn * 0.14})`,
+          opacity: bannerIn,
+        }}
+      >
+        <div
+          style={{
+            fontFamily: ANTON,
+            fontSize: 54,
+            lineHeight: 1.04,
+            color: '#FFFFFF',
+            letterSpacing: '0.015em',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          BUTUH SOLUSI IT? INGAT MOHEF TECH
+        </div>
+      </div>
+
+      <div
+        style={{
+          marginTop: 14,
+          width: 940,
+          padding: '9px 24px',
+          borderRadius: 14,
+          background: '#FFFFFF',
+          border: `2px solid ${EMERALD}`,
+          boxShadow: '0 10px 24px rgba(10, 42, 53, 0.14)',
+          textAlign: 'center',
+          fontFamily: JAKARTA,
+          fontSize: 20,
+          fontWeight: 800,
+          lineHeight: 1.25,
+          color: INK,
+          opacity: subIn,
+          transform: `translateY(${(1 - subIn) * 18}px)`,
+        }}
+      >
+        UMKM &amp; Toko <span style={{ color: MOHEF_BLUE }}>•</span> Kantor &amp; Instansi{' '}
+        <span style={{ color: MOHEF_BLUE }}>•</span> Karyawan, Mahasiswa &amp; Kebutuhan Pribadi
+      </div>
+    </div>
+  );
+};
+
+// ============================================================================
+// SCENE 5 — GRAND FINALE CTA & RUJUKAN IT
+// ============================================================================
+export const Scene5ContactCTA: React.FC<{ withBgm?: boolean }> = ({ withBgm = true }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const userMsgSpring = spring({
-    frame: frame - USER_MSG_FRAME,
-    fps,
-    config: { damping: 16, stiffness: 145, mass: 0.7 },
-  });
-
-  const replyMsgSpring = spring({
-    frame: frame - REPLY_MSG_FRAME,
-    fps,
-    config: { damping: 16, stiffness: 145, mass: 0.7 },
-  });
-
-  const isHoveringCta = frame >= CTA_HOVER_FRAME;
-  const isClickedCta = frame >= CTA_CLICK_FRAME;
-
-  const ctaPressScale =
-    frame >= CTA_CLICK_FRAME && frame <= CTA_CLICK_FRAME + 20
-      ? interpolate(
-          frame - CTA_CLICK_FRAME,
-          [0, 5, 13, 20],
-          [1, 0.92, 1.05, 1],
-          {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }
-        )
-      : isHoveringCta
-        ? 1.03
-        : 1;
-
-  const confirmBadgeSpring = spring({
-    frame: isClickedCta ? frame - CTA_CLICK_FRAME : 0,
-    fps,
-    config: { damping: 14, stiffness: 150, mass: 0.7 },
-  });
-
-  const pulseGlow = Math.sin(frame * 0.1) * 0.5 + 0.5;
-
-  const valueChips = [
-    "✓ Konsultasi & Survei Awal Gratis",
-    "✓ Estimasi Harga Jelas di Depan",
-    "✓ Garansi Resmi & Support 24/7",
-  ];
+  const allLit = frame >= 215;
+  const ctaEnter = spring({ frame: frame - 212, fps, config: { damping: 14, stiffness: 155, mass: 0.8 } });
+  const saveClickPulse =
+    frame >= 268
+      ? 1 - 0.05 * Math.sin(Math.PI * interpolate(frame, [268, 280], [0, 1], clampOpts))
+      : 1;
+  const saveActive = frame >= 272;
 
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: "#040812",
-        fontFamily:
-          "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-        overflow: "hidden",
+        background: 'linear-gradient(180deg, #CFE8FB 0%, #E8F3FB 38%, #FBF3E8 72%, #F6E9D7 100%)',
+        overflow: 'hidden',
       }}
     >
-      {/* Clean Studio WAV SFX */}
-      <SfxCue frame={4} sfx="pop-in" volume={0.36} />
-      <SfxCue frame={USER_MSG_FRAME} sfx="pop-plop" volume={0.44} />
-      <SfxCue frame={REPLY_MSG_FRAME} sfx="ding-bell" volume={0.42} />
-      <SfxCue frame={CTA_HOVER_FRAME} sfx="hover-rollover" volume={0.26} />
-      <SfxCue frame={CTA_CLICK_FRAME} sfx="click" volume={0.55} />
-      <SfxCue frame={CTA_CLICK_FRAME + 2} sfx="confirm-chime" volume={0.5} />
+      {/* Audio BGM & SFX Presisi */}
+      {withBgm && <Audio src={staticFile('audio/songs/B25-apple-keynote-pluck.wav')} volume={0.5} loop />}
+      <SfxCue frame={8} sfx="transition-whoosh-soft" volume={0.55} />
+      <SfxCue frame={35} sfx="pop-in" volume={0.55} />
+      <SfxCue frame={95} sfx="pop-in" volume={0.55} />
+      <SfxCue frame={155} sfx="pop-in" volume={0.55} />
+      <SfxCue frame={215} sfx="confirm-chime" volume={0.65} />
 
-      {/* Ambient top glow */}
+      {/* Awan lembut latar belakang */}
       <div
         style={{
-          position: "absolute",
-          top: -180,
-          left: "50%",
-          width: 900,
-          height: 900,
-          transform: "translateX(-50%)",
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(59,130,246,0.22) 0%, rgba(16,185,129,0.08) 45%, transparent 70%)",
-          pointerEvents: "none",
+          position: 'absolute',
+          top: 66 + Math.sin(frame / 42) * 5,
+          left: -85 + frame * 0.2,
+          width: 500,
+          height: 150,
+          borderRadius: 999,
+          background: 'rgba(255,255,255,0.7)',
+          filter: 'blur(28px)',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: 390,
+          right: -120 + frame * 0.16,
+          width: 440,
+          height: 135,
+          borderRadius: 999,
+          background: 'rgba(255,255,255,0.56)',
+          filter: 'blur(30px)',
         }}
       />
 
-      {/* Floating Context Pill */}
-      <FloatingContextPill
-        text="💬 Konsultasi Gratis Sekarang — Respon Cepat via WhatsApp"
-        startFrame={4}
+      {/* Zona Tengah (Y: 320px s/d 1105px — Pull-Back & Sequential Spotlight 1->2->3->All) */}
+      <MohefTechHub3D
+        cameraStage="final-cta"
+        fromStage="room3-software"
+        transitionStart={0}
+        transitionDuration={45}
+        frame={frame}
+        width={1080}
+        height={1920}
+        focusY={730}
+        style={{ position: 'absolute', top: 0, left: 0, zIndex: 10 }}
       />
 
-      {/* Camera Rig */}
-      <CameraRig
-        keyframes={[
-          { frame: 0, scale: 1.04, x: 0, y: -30, rotateX: 0, rotateY: 0 },
-          {
-            frame: 50,
-            scale: 1.15,
-            x: 0,
-            y: 120,
-            rotateX: 1.2,
-            rotateY: 0,
-          },
-          {
-            frame: 145,
-            scale: 1.15,
-            x: 0,
-            y: 110,
-            rotateX: 1.2,
-            rotateY: 0,
-          },
-          {
-            frame: CTA_HOVER_FRAME,
-            scale: 1.14,
-            x: 0,
-            y: -95,
-            rotateX: 1,
-            rotateY: 0,
-          },
-          {
-            frame: CTA_CLICK_FRAME + 30,
-            scale: 1.14,
-            x: 0,
-            y: -95,
-            rotateX: 1,
-            rotateY: 0,
-          },
-          {
-            frame: 390,
-            scale: 1,
-            x: 0,
-            y: 0,
-            rotateX: 0,
-            rotateY: 0,
-          },
-        ]}
+      {/* Zona Atas */}
+      <CtaHeader frame={frame} fps={fps} />
+
+      {/* Zona Bawah Baris 1 (Y: 1110px s/d 1282px — 3 Kartu Sinkron Sorotan Ruangan) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 1110,
+          left: 50,
+          width: 980,
+          height: 172,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+          gap: 18,
+          zIndex: 30,
+        }}
       >
+        {SYNC_CARDS.map((card) => {
+          const enter = spring({
+            frame: frame - card.startFrame,
+            fps,
+            config: { damping: 14, stiffness: 170, mass: 0.7 },
+          });
+          const isFocused = frame >= card.startFrame && frame < card.endFrame;
+          const activeLift = isFocused ? -7 : allLit ? -2 : 0;
+          const activeScale = isFocused ? 1.03 : 1;
+
+          return (
+            <div
+              key={card.id}
+              style={{
+                position: 'relative',
+                borderRadius: 20,
+                background: card.bg,
+                border: `${isFocused || allLit ? 2.5 : 2}px solid ${card.accent}`,
+                padding: '14px 18px 18px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                overflow: 'hidden',
+                opacity: enter,
+                transform: `translateY(${(1 - enter) * 26 + activeLift}px) scale(${(0.86 + enter * 0.14) * activeScale})`,
+                boxShadow: isFocused
+                  ? `0 18px 36px ${card.shadow}, 0 0 0 4px ${card.accent}2A`
+                  : allLit
+                    ? `0 14px 28px ${card.shadow}`
+                    : '0 10px 22px rgba(15, 23, 42, 0.08)',
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: JAKARTA,
+                  fontSize: 13,
+                  fontWeight: 800,
+                  letterSpacing: '0.07em',
+                  color: card.badgeColor,
+                }}
+              >
+                {card.badge}
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontFamily: JAKARTA,
+                    fontSize: 21,
+                    fontWeight: 800,
+                    lineHeight: 1.18,
+                    color: INK,
+                  }}
+                >
+                  {card.title}
+                </div>
+                <div
+                  style={{
+                    marginTop: 5,
+                    fontFamily: JAKARTA,
+                    fontSize: 15,
+                    fontWeight: 600,
+                    lineHeight: 1.28,
+                    color: MUTED,
+                  }}
+                >
+                  {card.desc}
+                </div>
+              </div>
+              <div
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  height: 6,
+                  background: card.accent,
+                }}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Zona Bawah Baris 2 (Y: 1300px s/d 1620px — Hero Contact & Save CTA Card, Safe Zone >300px) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 1300,
+          left: 50,
+          width: 980,
+          height: 320,
+          borderRadius: 24,
+          background: `linear-gradient(135deg, ${MOHEF_DARK} 0%, #0F3548 100%)`,
+          border: `3px solid ${MOHEF_BLUE}`,
+          boxShadow: allLit
+            ? '0 22px 46px rgba(10, 42, 53, 0.38), 0 0 0 5px rgba(0, 86, 210, 0.22)'
+            : '0 18px 38px rgba(10, 42, 53, 0.3)',
+          padding: '20px 24px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          opacity: ctaEnter,
+          transform: `translateY(${(1 - ctaEnter) * 32}px) scale(${0.92 + ctaEnter * 0.08})`,
+          zIndex: 30,
+          boxSizing: 'border-box',
+        }}
+      >
+        {/* Header Bar dalam Card */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '5px 14px',
+              borderRadius: 999,
+              background: 'rgba(16, 185, 129, 0.18)',
+              border: '1.5px solid rgba(16, 185, 129, 0.55)',
+              fontFamily: JAKARTA,
+              fontSize: 14,
+              fontWeight: 800,
+              letterSpacing: '0.06em',
+              color: '#6EE7B7',
+            }}
+          >
+            <span>SEMUA TERHUBUNG • KONSULTASI GRATIS DULU</span>
+          </div>
+          <div
+            style={{
+              fontFamily: JAKARTA,
+              fontSize: 15,
+              fontWeight: 700,
+              color: '#BAE6FD',
+            }}
+          >
+            UMKM • Kantor • Personal &amp; Mahasiswa
+          </div>
+        </div>
+
+        {/* 2 Kolom Kontak Jelas & Save Rujukan */}
         <div
           style={{
-            position: "absolute",
-            left: 56,
-            top: 210,
-            width: 968,
-            height: 1560,
+            display: 'grid',
+            gridTemplateColumns: '1.05fr 1fr',
+            gap: 18,
+            flex: 1,
+            marginTop: 14,
           }}
         >
-          <DeviceFrame
-            variant="browser"
-            url="https://moheftech.com/#kontak"
-            style={{ width: "100%", height: "100%" }}
+          {/* Kolom Kiri: Nomor WhatsApp & Nama Mohammed */}
+          <div
+            style={{
+              borderRadius: 18,
+              background: '#FFFFFF',
+              border: `2px solid ${EMERALD}`,
+              padding: '16px 22px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              gap: 6,
+              boxShadow: '0 10px 24px rgba(0, 0, 0, 0.16)',
+            }}
           >
             <div
               style={{
-                position: "relative",
-                width: "100%",
-                height: "100%",
-                backgroundColor: "#060c18",
-                color: "#e8edf5",
-                display: "flex",
-                flexDirection: "column",
-                overflow: "hidden",
+                fontFamily: JAKARTA,
+                fontSize: 14,
+                fontWeight: 800,
+                letterSpacing: '0.08em',
+                color: '#059669',
               }}
             >
-              {/* Subtle Tech Radial Mesh */}
+              WHATSAPP / HUBUNGI LANGSUNG
+            </div>
+            <div
+              style={{
+                fontFamily: JAKARTA,
+                fontSize: 42,
+                fontWeight: 800,
+                letterSpacing: '0.02em',
+                lineHeight: 1.05,
+                color: MOHEF_DARK,
+              }}
+            >
+              082336744354
+            </div>
+            <div
+              style={{
+                fontFamily: JAKARTA,
+                fontSize: 21,
+                fontWeight: 800,
+                color: MOHEF_BLUE,
+              }}
+            >
+              Mohammed <span style={{ color: MUTED, fontWeight: 700 }}>• Mohef Tech</span>
+            </div>
+          </div>
+
+          {/* Kolom Kanan: DM / Klik Link di Bio + Save Video Button */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: 12,
+            }}
+          >
+            <div
+              style={{
+                borderRadius: 16,
+                background: 'rgba(255, 255, 255, 0.09)',
+                border: '1.5px solid rgba(125, 211, 252, 0.45)',
+                padding: '13px 18px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4,
+              }}
+            >
               <div
                 style={{
-                  position: "absolute",
-                  inset: 0,
-                  backgroundImage:
-                    "radial-gradient(circle at 50% 22%, rgba(37, 211, 102, 0.12), transparent 50%), radial-gradient(circle at 50% 78%, rgba(59, 130, 246, 0.18), transparent 55%)",
-                  pointerEvents: "none",
-                }}
-              />
-
-              {/* ============ STICKY NAVBAR ============ */}
-              <header
-                style={{
-                  position: "relative",
-                  zIndex: 20,
-                  height: 84,
-                  flexShrink: 0,
-                  padding: "0 40px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  backgroundColor: "rgba(6, 12, 24, 0.92)",
-                  borderBottom: "1px solid rgba(59, 130, 246, 0.18)",
+                  fontFamily: JAKARTA,
+                  fontSize: 21,
+                  fontWeight: 800,
+                  color: '#FFFFFF',
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                  <div
-                    style={{
-                      width: 42,
-                      height: 42,
-                      borderRadius: 12,
-                      background: "linear-gradient(135deg, #3b82f6, #06b6d4)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      boxShadow: "0 0 20px rgba(59, 130, 246, 0.45)",
-                      fontWeight: 800,
-                      fontSize: 20,
-                      color: "#ffffff",
-                    }}
-                  >
-                    M
-                  </div>
-                  <span
-                    style={{
-                      fontWeight: 800,
-                      fontSize: 22,
-                      background: "linear-gradient(135deg, #3b82f6, #06b6d4)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      letterSpacing: "-0.02em",
-                    }}
-                  >
-                    Mohef Tech
-                  </span>
-                </div>
-
-                <nav style={{ display: "flex", alignItems: "center", gap: 32 }}>
-                  <span
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 500,
-                      color: "#94a3b8",
-                    }}
-                  >
-                    Home
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 500,
-                      color: "#94a3b8",
-                    }}
-                  >
-                    Layanan
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 500,
-                      color: "#94a3b8",
-                    }}
-                  >
-                    Tentang
-                  </span>
-                  <span
-                    style={{
-                      padding: "10px 24px",
-                      borderRadius: 9999,
-                      background: "linear-gradient(135deg, #25d366, #128c7e)",
-                      color: "#ffffff",
-                      fontSize: 15,
-                      fontWeight: 700,
-                      boxShadow: "0 0 20px rgba(37, 211, 102, 0.4)",
-                    }}
-                  >
-                    Kontak
-                  </span>
-                </nav>
-              </header>
-
-              {/* ============ KONTAK & LIVE WHATSAPP CONSULTATION CONTENT ============ */}
+                📩 DM / Klik Link di Bio
+              </div>
               <div
                 style={{
-                  position: "relative",
-                  flex: 1,
-                  padding: "34px 42px 40px",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  gap: 22,
+                  fontFamily: JAKARTA,
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: '#CBD5E1',
                 }}
               >
-                {/* Live WhatsApp Quick-Chat Simulation Box */}
-                <div
-                  style={{
-                    borderRadius: 24,
-                    backgroundColor: "rgba(11, 24, 43, 0.92)",
-                    border: "1.5px solid rgba(37, 211, 102, 0.38)",
-                    boxShadow:
-                      "0 22px 50px rgba(0, 0, 0, 0.55), 0 0 40px rgba(37, 211, 102, 0.14)",
-                    overflow: "hidden",
-                  }}
-                >
-                  {/* WhatsApp Header Bar */}
-                  <div
-                    style={{
-                      padding: "18px 26px",
-                      background:
-                        "linear-gradient(90deg, rgba(18, 140, 126, 0.35), rgba(15, 34, 64, 0.9))",
-                      borderBottom: "1px solid rgba(37, 211, 102, 0.25)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 14,
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: 46,
-                          height: 46,
-                          borderRadius: "50%",
-                          background:
-                            "linear-gradient(135deg, #25d366, #128c7e)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 22,
-                          fontWeight: 900,
-                          color: "#ffffff",
-                          boxShadow: "0 0 16px rgba(37, 211, 102, 0.45)",
-                        }}
-                      >
-                        MT
-                      </div>
-                      <div>
-                        <div
-                          style={{
-                            fontSize: 18,
-                            fontWeight: 800,
-                            color: "#f8fafc",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 8,
-                          }}
-                        >
-                          <span>Mohef Tech Official Support</span>
-                          <span
-                            style={{
-                              fontSize: 11,
-                              padding: "2px 8px",
-                              borderRadius: 9999,
-                              backgroundColor: "rgba(37, 211, 102, 0.2)",
-                              color: "#4ade80",
-                              fontWeight: 700,
-                            }}
-                          >
-                            VERIFIED
-                          </span>
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 13,
-                            color: "#4ade80",
-                            fontWeight: 600,
-                            marginTop: 2,
-                          }}
-                        >
-                          ● Online — Rata-rata respon &lt; 5 menit
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: "#94a3b8",
-                        padding: "6px 14px",
-                        borderRadius: 9999,
-                        backgroundColor: "rgba(6, 12, 24, 0.65)",
-                        border: "1px solid rgba(59, 130, 246, 0.2)",
-                      }}
-                    >
-                      Pesan Otomatis Terisi ✨
-                    </div>
-                  </div>
-
-                  {/* Chat Messages Area */}
-                  <div
-                    style={{
-                      padding: "22px 26px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 14,
-                    }}
-                  >
-                    {/* Outgoing User Bubble */}
-                    <div
-                      style={{
-                        alignSelf: "flex-end",
-                        maxWidth: "82%",
-                        padding: "16px 20px",
-                        borderRadius: "18px 18px 4px 18px",
-                        background:
-                          "linear-gradient(135deg, rgba(18, 140, 126, 0.55), rgba(13, 148, 136, 0.45))",
-                        border: "1px solid rgba(52, 211, 153, 0.45)",
-                        color: "#f8fafc",
-                        fontSize: 15,
-                        lineHeight: 1.5,
-                        opacity: interpolate(userMsgSpring, [0, 1], [0, 1]),
-                        transform: `translateY(${interpolate(userMsgSpring, [0, 1], [18, 0])}px) scale(${interpolate(userMsgSpring, [0, 1], [0.95, 1])})`,
-                      }}
-                    >
-                      Halo Mohef Tech 👋, saya ingin konsultasi layanan{" "}
-                      <strong style={{ color: "#6ee7b7" }}>
-                        Pengembangan Sistem & Web App (Menengah)
-                      </strong>{" "}
-                      untuk kebutuhan operasional bisnis kami.
-                      <div
-                        style={{
-                          fontSize: 11,
-                          color: "#a7f3d0",
-                          textAlign: "right",
-                          marginTop: 6,
-                        }}
-                      >
-                        Baru saja ✓✓
-                      </div>
-                    </div>
-
-                    {/* Incoming Mohef Tech Support Bubble */}
-                    <div
-                      style={{
-                        alignSelf: "flex-start",
-                        maxWidth: "85%",
-                        padding: "16px 20px",
-                        borderRadius: "18px 18px 18px 4px",
-                        backgroundColor: "rgba(15, 34, 64, 0.92)",
-                        border: "1px solid rgba(56, 189, 248, 0.4)",
-                        color: "#e8edf5",
-                        fontSize: 15,
-                        lineHeight: 1.5,
-                        opacity: interpolate(replyMsgSpring, [0, 1], [0, 1]),
-                        transform: `translateY(${interpolate(replyMsgSpring, [0, 1], [18, 0])}px) scale(${interpolate(replyMsgSpring, [0, 1], [0.95, 1])})`,
-                      }}
-                    >
-                      Halo! Terima kasih telah menghubungi{" "}
-                      <strong style={{ color: "#38bdf8" }}>Mohef Tech</strong>{" "}
-                      🚀. Tim engineer kami siap bantu analisa kebutuhan Anda &
-                      jadwalkan sesi konsultasi gratis hari ini!
-                      <div
-                        style={{
-                          fontSize: 11,
-                          color: "#94a3b8",
-                          marginTop: 6,
-                        }}
-                      >
-                        Tim Teknis Mohef Tech • Siap Membantu
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Grand Closing Conversion Hero Card */}
-                <div
-                  style={{
-                    flex: 1,
-                    borderRadius: 26,
-                    padding: "34px 38px",
-                    background:
-                      "linear-gradient(145deg, rgba(13, 27, 46, 0.96), rgba(8, 18, 36, 0.98))",
-                    border: "1.5px solid rgba(59, 130, 246, 0.45)",
-                    boxShadow: `0 28px 64px rgba(0, 0, 0, 0.65), 0 0 ${36 + pulseGlow * 18}px rgba(59, 130, 246, 0.28)`,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  {/* Top Badge */}
-                  <div
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 10,
-                      padding: "8px 20px",
-                      borderRadius: 9999,
-                      backgroundColor: "rgba(59, 130, 246, 0.15)",
-                      border: "1px solid rgba(56, 189, 248, 0.4)",
-                      color: "#60a5fa",
-                      fontSize: 13,
-                      fontWeight: 800,
-                      letterSpacing: "0.06em",
-                      textTransform: "uppercase",
-                      marginBottom: 18,
-                    }}
-                  >
-                    <span>🚀</span>
-                    <span>Partner IT Hardware & Software Terpadu</span>
-                  </div>
-
-                  <h2
-                    style={{
-                      margin: "0 0 12px",
-                      fontSize: 38,
-                      fontWeight: 900,
-                      lineHeight: 1.18,
-                      letterSpacing: "-0.025em",
-                      color: "#ffffff",
-                    }}
-                  >
-                    Siap Wujudkan Solusi IT{" "}
-                    <span
-                      style={{
-                        background:
-                          "linear-gradient(135deg, #38bdf8, #34d399)",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                      }}
-                    >
-                      Terbaik untuk Anda?
-                    </span>
-                  </h2>
-
-                  <p
-                    style={{
-                      margin: "0 0 22px",
-                      fontSize: 17,
-                      color: "#94a3b8",
-                      maxWidth: 680,
-                      lineHeight: 1.55,
-                    }}
-                  >
-                    Mulai dari servis & upgrade perangkat, instalasi jaringan,
-                    hingga pembuatan aplikasi web custom dengan harga jujur dan
-                    bergaransi.
-                  </p>
-
-                  {/* 3 Value Chips */}
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      justifyContent: "center",
-                      gap: 12,
-                      marginBottom: 28,
-                    }}
-                  >
-                    {valueChips.map((chip) => (
-                      <span
-                        key={chip}
-                        style={{
-                          padding: "8px 16px",
-                          borderRadius: 9999,
-                          backgroundColor: "rgba(15, 34, 64, 0.85)",
-                          border: "1px solid rgba(59, 130, 246, 0.28)",
-                          color: "#cbd5e1",
-                          fontSize: 13.5,
-                          fontWeight: 700,
-                        }}
-                      >
-                        {chip}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Primary Conversion CTA Button (Center X = 540, Center Y = 1352) */}
-                  <div
-                    style={{
-                      width: "100%",
-                      maxWidth: 560,
-                      height: 68,
-                      borderRadius: 9999,
-                      background: isClickedCta
-                        ? "linear-gradient(135deg, #16a34a, #0d9488)"
-                        : "linear-gradient(135deg, #25d366, #128c7e)",
-                      color: "#ffffff",
-                      fontSize: 21,
-                      fontWeight: 800,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 12,
-                      transform: `scale(${ctaPressScale})`,
-                      border: isClickedCta
-                        ? "2.5px solid #86efac"
-                        : "1.5px solid rgba(255, 255, 255, 0.3)",
-                      boxShadow: isClickedCta
-                        ? "0 0 0 8px rgba(37, 211, 102, 0.32), 0 20px 44px rgba(37, 211, 102, 0.65)"
-                        : "0 14px 36px rgba(37, 211, 102, 0.42)",
-                      marginBottom: 20,
-                    }}
-                  >
-                    <span style={{ fontSize: 24 }}>💬</span>
-                    <span>
-                      {isClickedCta
-                        ? "Terhubung ke WhatsApp Mohef Tech ✓"
-                        : "Konsultasi Gratis via WhatsApp Sekarang"}
-                    </span>
-                  </div>
-
-                  {/* Bottom Website & Availability Bar */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 24,
-                      fontSize: 15,
-                      fontWeight: 700,
-                      color: "#94a3b8",
-                      opacity: interpolate(
-                        confirmBadgeSpring,
-                        [0, 1],
-                        [0.85, 1]
-                      ),
-                    }}
-                  >
-                    <span style={{ color: "#38bdf8" }}>🌐 moheftech.com</span>
-                    <span>•</span>
-                    <span>📍 Layanan On-Site & Remote</span>
-                    <span>•</span>
-                    <span style={{ color: "#34d399" }}>⚡ Support 24/7</span>
-                  </div>
-                </div>
+                Tanya masalah IT, ruang usaha, PC, atau aplikasi custom kamu
               </div>
             </div>
-          </DeviceFrame>
-        </div>
 
-        {/* Simulated Cursor: Exact coordinates for Chat Bubbles -> Primary WA Button at (540, 1352) */}
-        <SimulatedCursor
-          path={[
-            { frame: 0, x: 830, y: 1197 },
-            { frame: 55, x: 620, y: 560 },
-            { frame: 135, x: 460, y: 690 },
-            { frame: CTA_HOVER_FRAME, x: 540, y: 1352 },
-            { frame: CTA_CLICK_FRAME, x: 540, y: 1352, click: true },
+            <div
+              style={{
+                borderRadius: 16,
+                background: saveActive
+                  ? 'linear-gradient(90deg, #059669 0%, #10B981 100%)'
+                  : 'linear-gradient(90deg, #0056D2 0%, #10B981 100%)',
+                border: '2px solid rgba(255, 255, 255, 0.65)',
+                padding: '14px 18px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+                fontFamily: JAKARTA,
+                fontSize: 19,
+                fontWeight: 800,
+                color: '#FFFFFF',
+                letterSpacing: '0.02em',
+                transform: `scale(${saveClickPulse})`,
+                boxShadow: saveActive
+                  ? '0 10px 26px rgba(16, 185, 129, 0.48)'
+                  : '0 8px 20px rgba(0, 86, 210, 0.32)',
+              }}
+            >
+              <span>{saveActive ? '✅ TERSIMPAN! JADIKAN RUJUKAN IT' : '🔖 SAVE VIDEO INI JADI RUJUKAN IT'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Kursor interaktif mengklik tombol Save Video */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 40 }}>
+        <AnimatedCursor
+          waypoints={[
+            [235, 920, 1660],
+            [265, 780, 1558],
+            [330, 780, 1558],
           ]}
+          clicks={[{ frame: 268, label: 'SAVE' }]}
+          size={36}
+          accentColor={EMERALD}
+          enableClickSfx={true}
         />
-      </CameraRig>
+      </div>
     </AbsoluteFill>
   );
 };
+
+export default Scene5ContactCTA;

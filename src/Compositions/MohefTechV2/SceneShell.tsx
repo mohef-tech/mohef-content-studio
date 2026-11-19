@@ -97,6 +97,7 @@ export const SceneShell: React.FC<SceneShellProps> = ({
   const headlineStartFrame = sec(headlineStartSec);
   const wordStaggerFrames = Math.max(1, sec(wordStaggerSec));
   const punchDurFrames = Math.max(2, sec(accentPunchDurationSec));
+  void punchDurFrames;
 
   const firstAccentIndex = words.findIndex((word, idx) => {
     const cleanWord = word.replace(/[^A-Z0-9]/gi, "");
@@ -124,7 +125,7 @@ export const SceneShell: React.FC<SceneShellProps> = ({
       {accentWhooshSfx && firstAccentIndex >= 0 && (
         <SfxCue
           frame={accentSfxFrame}
-          sfx={accentWhooshSfx}
+          sfx={accentWhooshSfx as React.ComponentProps<typeof SfxCue>["sfx"]}
           volume={SFX.volume}
         />
       )}

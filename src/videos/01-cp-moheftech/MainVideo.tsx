@@ -8,19 +8,18 @@ import {
   staticFile,
   useCurrentFrame,
 } from "remotion";
-import { SfxCue } from "../../lib/motion-craft";
-import { Scene1Home } from "./Scene1Home";
-import { Scene2Services } from "./Scene2Services";
-import { Scene3SearchModal } from "./Scene3SearchModal";
-import { Scene4TrustProcess } from "./Scene4TrustProcess";
-import { Scene5ContactCTA } from "./Scene5ContactCTA";
+import { SCENE1_DURATION, Scene1Home } from "./Scene1Home";
+import { SCENE2_DURATION, Scene2Services } from "./Scene2Services";
+import { SCENE3_DURATION, Scene3SearchModal } from "./Scene3SearchModal";
+import { SCENE4_DURATION, Scene4TrustProcess } from "./Scene4TrustProcess";
+import { SCENE5_DURATION, Scene5ContactCTA } from "./Scene5ContactCTA";
 
 export const CP_SCENE_DURATIONS = {
-  home: 240,
-  services: 450,
-  searchModal: 510,
-  trustProcess: 420,
-  contactCta: 420,
+  home: SCENE1_DURATION,
+  services: SCENE2_DURATION,
+  searchModal: SCENE3_DURATION,
+  trustProcess: SCENE4_DURATION,
+  contactCta: SCENE5_DURATION,
 } as const;
 
 export const CP_TOTAL_DURATION =
@@ -77,7 +76,7 @@ const StoryProgressBar: React.FC = () => {
               flex: 1,
               height: 5,
               borderRadius: 9999,
-              backgroundColor: "rgba(148, 163, 184, 0.22)",
+              backgroundColor: "rgba(10, 42, 53, 0.16)",
               overflow: "hidden",
             }}
           >
@@ -86,8 +85,8 @@ const StoryProgressBar: React.FC = () => {
                 width: `${p * 100}%`,
                 height: "100%",
                 borderRadius: 9999,
-                background: "linear-gradient(90deg, #3b82f6, #06b6d4)",
-                boxShadow: "0 0 10px rgba(56, 189, 248, 0.7)",
+                background: "linear-gradient(90deg, #0056D2, #10B981)",
+                boxShadow: "0 0 8px rgba(0, 86, 210, 0.45)",
               }}
             />
           </div>
@@ -100,7 +99,7 @@ const StoryProgressBar: React.FC = () => {
 /** Subtle light pulse at scene transitions */
 const SceneCutGlow: React.FC = () => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, 5, 16], [0, 0.3, 0], {
+  const opacity = interpolate(frame, [0, 5, 14], [0, 0.18, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -109,7 +108,7 @@ const SceneCutGlow: React.FC = () => {
     <AbsoluteFill
       style={{
         background:
-          "radial-gradient(circle at 50% 50%, rgba(186, 230, 253, 0.75) 0%, rgba(56, 189, 248, 0.35) 42%, transparent 75%)",
+          "radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.85) 0%, rgba(186, 230, 253, 0.4) 45%, transparent 75%)",
         opacity,
         mixBlendMode: "screen",
         pointerEvents: "none",
@@ -121,43 +120,37 @@ const SceneCutGlow: React.FC = () => {
 
 export const MainVideo: React.FC = () => {
   return (
-    <AbsoluteFill style={{ backgroundColor: "#040812" }}>
-      {/* Background Music (BGM) */}
+    <AbsoluteFill style={{ backgroundColor: "#E8F3FB" }}>
+      {/* BGM Berkesinambungan 1 kesatuan video (Scene 1-5 @ 30fps) */}
       <Audio
-        src={staticFile("audio/songs/B26-framer-linear-saas-groove.wav")}
-        volume={0.14}
+        src={staticFile("audio/songs/B25-apple-keynote-pluck.wav")}
+        volume={0.48}
         loop
       />
 
       <Series>
         <Series.Sequence durationInFrames={CP_SCENE_DURATIONS.home}>
-          <Scene1Home />
+          <Scene1Home withBgm={false} />
         </Series.Sequence>
         <Series.Sequence durationInFrames={CP_SCENE_DURATIONS.services}>
-          <Scene2Services />
+          <Scene2Services withBgm={false} />
         </Series.Sequence>
         <Series.Sequence durationInFrames={CP_SCENE_DURATIONS.searchModal}>
-          <Scene3SearchModal />
+          <Scene3SearchModal withBgm={false} />
         </Series.Sequence>
         <Series.Sequence durationInFrames={CP_SCENE_DURATIONS.trustProcess}>
-          <Scene4TrustProcess />
+          <Scene4TrustProcess withBgm={false} />
         </Series.Sequence>
         <Series.Sequence durationInFrames={CP_SCENE_DURATIONS.contactCta}>
-          <Scene5ContactCTA />
+          <Scene5ContactCTA withBgm={false} />
         </Series.Sequence>
       </Series>
 
-      {/* Smooth Transition Glow & SFX at Scene Boundaries */}
+      {/* Subtle visual glow at scene boundaries */}
       {STARTS.slice(1).map((s) => (
-        <Sequence key={`glow-${s}`} from={s - 5} durationInFrames={16}>
+        <Sequence key={`glow-${s}`} from={s - 5} durationInFrames={14}>
           <SceneCutGlow />
         </Sequence>
-      ))}
-      {STARTS.slice(1).map((s) => (
-        <React.Fragment key={`sfx-${s}`}>
-          <SfxCue frame={s - 5} sfx="transition-whoosh-soft" volume={0.36} />
-          <SfxCue frame={s - 1} sfx="transition-swoosh" volume={0.3} />
-        </React.Fragment>
       ))}
 
       <StoryProgressBar />
