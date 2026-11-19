@@ -1,8 +1,42 @@
-node_modules
-dist
-.DS_Store
-.env
+# Dependencies & Build
+node_modules/
+.remotion/
+dist/
+build/
 
-# Ignore the output video from Git but not videos you import into src/.
-out
+# Render Output Video (Ukuran Besar)
 out/
+*.mp4
+*.mov
+*.webm
+
+# AI Agent, Skills & Prompt Configs (Cukup di Lokal)
+.agents/
+.aider-desk/
+.claude/
+.minimax/
+.cursor/
+.gemini/
+.antigravity/
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+skills-lock.json
+
+# Python / edge-tts Environment & Cache
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
