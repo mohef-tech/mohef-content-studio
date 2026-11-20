@@ -34,6 +34,23 @@ import { Scene2Needs } from "./videos/04-ep2-rakit-pc/Scene2Needs";
 import { Scene3Assembly } from "./videos/04-ep2-rakit-pc/Scene3Assembly";
 import { Scene4Airflow } from "./videos/04-ep2-rakit-pc/Scene4Airflow";
 import { Scene5ClosingCTA } from "./videos/04-ep2-rakit-pc/Scene5ClosingCTA";
+import {
+  EP3_FPS,
+  EP3_HEIGHT,
+  EP3_TOTAL_DURATION,
+  EP3_WIDTH,
+  SCENE1_DURATION_FRAMES as EP3_SCENE1_DURATION,
+  SCENE2_DURATION_FRAMES as EP3_SCENE2_DURATION,
+  SCENE3_DURATION_FRAMES as EP3_SCENE3_DURATION,
+  SCENE4_DURATION_FRAMES as EP3_SCENE4_DURATION,
+  SCENE5_DURATION_FRAMES as EP3_SCENE5_DURATION,
+} from "./videos/05-ep3-instalasi-sistem/constants";
+import { Ep3InstalasiSistemFull } from "./videos/05-ep3-instalasi-sistem/Ep3InstalasiSistemFull";
+import { Scene1Hook as Ep3Scene1Hook } from "./videos/05-ep3-instalasi-sistem/Scene1Hook";
+import { Scene2CleanInstall as Ep3Scene2CleanInstall } from "./videos/05-ep3-instalasi-sistem/Scene2CleanInstall";
+import { Scene3DriversTuning as Ep3Scene3DriversTuning } from "./videos/05-ep3-instalasi-sistem/Scene3DriversTuning";
+import { Scene4CustomApps as Ep3Scene4CustomApps } from "./videos/05-ep3-instalasi-sistem/Scene4CustomApps";
+import { Scene5ClosingCTA as Ep3Scene5ClosingCTA } from "./videos/05-ep3-instalasi-sistem/Scene5ClosingCTA";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -125,6 +142,60 @@ export const RemotionRoot: React.FC = () => {
         fps={EP2_FPS}
         width={EP2_WIDTH}
         height={EP2_HEIGHT}
+      />
+
+      <Composition
+        id="Ep3InstalasiSistem-Full"
+        component={Ep3InstalasiSistemFull}
+        durationInFrames={EP3_TOTAL_DURATION}
+        fps={EP3_FPS}
+        width={EP3_WIDTH}
+        height={EP3_HEIGHT}
+      />
+
+      <Composition
+        id="Ep3-Scene1"
+        component={Ep3Scene1Hook}
+        durationInFrames={EP3_SCENE1_DURATION}
+        fps={EP3_FPS}
+        width={EP3_WIDTH}
+        height={EP3_HEIGHT}
+      />
+
+      <Composition
+        id="Ep3-Scene2"
+        component={Ep3Scene2CleanInstall}
+        durationInFrames={EP3_SCENE2_DURATION}
+        fps={EP3_FPS}
+        width={EP3_WIDTH}
+        height={EP3_HEIGHT}
+      />
+
+      <Composition
+        id="Ep3-Scene3"
+        component={Ep3Scene3DriversTuning}
+        durationInFrames={EP3_SCENE3_DURATION}
+        fps={EP3_FPS}
+        width={EP3_WIDTH}
+        height={EP3_HEIGHT}
+      />
+
+      <Composition
+        id="Ep3-Scene4"
+        component={Ep3Scene4CustomApps}
+        durationInFrames={EP3_SCENE4_DURATION}
+        fps={EP3_FPS}
+        width={EP3_WIDTH}
+        height={EP3_HEIGHT}
+      />
+
+      <Composition
+        id="Ep3-Scene5"
+        component={Ep3Scene5ClosingCTA}
+        durationInFrames={EP3_SCENE5_DURATION}
+        fps={EP3_FPS}
+        width={EP3_WIDTH}
+        height={EP3_HEIGHT}
       />
       <MyComposition />
     </>
