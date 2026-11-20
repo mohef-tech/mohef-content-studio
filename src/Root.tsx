@@ -21,8 +21,10 @@ import {
   EP2_DURATIONS,
   EP2_FPS,
   EP2_HEIGHT,
+  EP2_TOTAL_DURATION,
   EP2_WIDTH,
 } from "./videos/04-ep2-rakit-pc/constants";
+import { Ep2RakitPcFull } from "./videos/04-ep2-rakit-pc/Ep2RakitPcFull";
 import {
   EP2_PARTS_PREVIEW_DURATION,
   PcPartsPreview,
@@ -60,6 +62,15 @@ export const RemotionRoot: React.FC = () => {
         fps={EP1_FPS}
         width={EP1_WIDTH}
         height={EP1_HEIGHT}
+      />
+
+      <Composition
+        id="Ep2RakitPc-Full"
+        component={Ep2RakitPcFull}
+        durationInFrames={EP2_TOTAL_DURATION}
+        fps={EP2_FPS}
+        width={EP2_WIDTH}
+        height={EP2_HEIGHT}
       />
 
       <Composition
